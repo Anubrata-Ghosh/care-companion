@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { 
   Pill, 
   Stethoscope, 
@@ -15,6 +16,7 @@ const services = [
     icon: Pill,
     colorClass: "text-service-medicine",
     bgClass: "bg-service-medicine-light",
+    route: null,
   },
   {
     title: "Doctor Appointment",
@@ -22,6 +24,7 @@ const services = [
     icon: Stethoscope,
     colorClass: "text-service-doctor",
     bgClass: "bg-service-doctor-light",
+    route: "/doctor-appointment",
   },
   {
     title: "Lab Tests at Home",
@@ -29,6 +32,7 @@ const services = [
     icon: TestTube2,
     colorClass: "text-service-lab",
     bgClass: "bg-service-lab-light",
+    route: null,
   },
   {
     title: "Part-time Nurse",
@@ -36,6 +40,7 @@ const services = [
     icon: Syringe,
     colorClass: "text-service-nurse",
     bgClass: "bg-service-nurse-light",
+    route: null,
   },
   {
     title: "Doctor Home Visit",
@@ -43,6 +48,7 @@ const services = [
     icon: Home,
     colorClass: "text-service-home-visit",
     bgClass: "bg-service-home-visit-light",
+    route: null,
   },
   {
     title: "Elderly Care",
@@ -50,10 +56,13 @@ const services = [
     icon: UserCheck,
     colorClass: "text-primary",
     bgClass: "bg-primary-light",
+    route: null,
   },
 ];
 
 const ServicesGrid = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="px-4 mb-8">
       <div className="flex items-center justify-between mb-4">
@@ -67,8 +76,13 @@ const ServicesGrid = () => {
         {services.map((service, index) => (
           <ServiceCard
             key={service.title}
-            {...service}
+            title={service.title}
+            description={service.description}
+            icon={service.icon}
+            colorClass={service.colorClass}
+            bgClass={service.bgClass}
             delay={index}
+            onClick={service.route ? () => navigate(service.route) : undefined}
           />
         ))}
       </div>
