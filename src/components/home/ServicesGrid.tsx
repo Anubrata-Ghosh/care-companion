@@ -32,7 +32,7 @@ const services = [
     icon: TestTube2,
     colorClass: "text-service-lab",
     bgClass: "bg-service-lab-light",
-    route: null,
+    route: "/lab-tests",
   },
   {
     title: "Part-time Nurse",
