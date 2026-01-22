@@ -16,7 +16,7 @@ const services = [
     icon: Pill,
     colorClass: "text-service-medicine",
     bgClass: "bg-service-medicine-light",
-    route: null,
+    route: "/medicine-delivery",
   },
   {
     title: "Doctor Appointment",
