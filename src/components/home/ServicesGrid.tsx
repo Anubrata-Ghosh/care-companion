@@ -40,7 +40,7 @@ const services = [
     icon: Syringe,
     colorClass: "text-service-nurse",
     bgClass: "bg-service-nurse-light",
-    route: null,
+    route: "/part-time-nurse",
   },
   {
     title: "Doctor Home Visit",
