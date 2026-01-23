@@ -1,7 +1,10 @@
 import { Phone, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const EmergencyButton = () => {
+  const navigate = useNavigate();
+
   return (
     <motion.div 
       className="mx-4 mb-6"
@@ -9,7 +12,10 @@ const EmergencyButton = () => {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.2 }}
     >
-      <button className="w-full relative overflow-hidden rounded-2xl bg-gradient-to-r from-emergency to-emergency/90 p-4 shadow-emergency emergency-pulse group">
+      <button 
+        onClick={() => navigate("/emergency-sos")}
+        className="w-full relative overflow-hidden rounded-2xl bg-gradient-to-r from-emergency to-emergency/90 p-4 shadow-emergency emergency-pulse group"
+      >
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
