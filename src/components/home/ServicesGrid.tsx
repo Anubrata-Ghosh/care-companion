@@ -48,7 +48,7 @@ const services = [
     icon: Home,
     colorClass: "text-service-home-visit",
     bgClass: "bg-service-home-visit-light",
-    route: null,
+    route: "/doctor-home-visit",
   },
   {
     title: "Elderly Care",
