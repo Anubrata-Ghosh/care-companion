@@ -56,7 +56,7 @@ const services = [
     icon: UserCheck,
     colorClass: "text-primary",
     bgClass: "bg-primary-light",
-    route: null,
+    route: "/elderly-care",
   },
 ];
 
