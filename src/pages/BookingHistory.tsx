@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, MapPin, Phone, MoreVertical, Filter, Search } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Phone, MoreVertical, Filter, Search, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,102 +13,40 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import BottomNav from "@/components/layout/BottomNav";
+
+type BookingType = "doctor" | "medicine" | "lab" | "nurse" | "home-visit" | "elderly-care" | "emergency";
+type BookingStatus = "upcoming" | "completed" | "cancelled";
 
 interface Booking {
   id: string;
-  type: "doctor" | "medicine" | "lab" | "nurse" | "home-visit" | "elderly-care";
+  booking_type: BookingType;
   title: string;
-  provider: string;
-  date: string;
-  time: string;
-  status: "upcoming" | "completed" | "cancelled";
+  provider_name: string;
+  booking_date: string;
+  booking_time: string;
+  status: BookingStatus;
   amount: number;
-  location?: string;
-  image?: string;
+  location: string | null;
 }
 
-const mockBookings: Booking[] = [
-  {
-    id: "BK001",
-    type: "doctor",
-    title: "Doctor Appointment",
-    provider: "Dr. Priya Sharma",
-    date: "2024-01-28",
-    time: "10:00 AM",
-    status: "upcoming",
-    amount: 500,
-    location: "Apollo Clinic, Koramangala",
-  },
-  {
-    id: "BK002",
-    type: "lab",
-    title: "Lab Test - CBC",
-    provider: "Thyrocare Labs",
-    date: "2024-01-30",
-    time: "07:00 AM",
-    status: "upcoming",
-    amount: 450,
-    location: "Home Collection",
-  },
-  {
-    id: "BK003",
-    type: "nurse",
-    title: "Part-time Nurse",
-    provider: "Nurse Anjali",
-    date: "2024-01-25",
-    time: "09:00 AM - 01:00 PM",
-    status: "completed",
-    amount: 800,
-    location: "Home Visit",
-  },
-  {
-    id: "BK004",
-    type: "medicine",
-    title: "Medicine Delivery",
-    provider: "MedPlus Pharmacy",
-    date: "2024-01-24",
-    time: "02:30 PM",
-    status: "completed",
-    amount: 1250,
-  },
-  {
-    id: "BK005",
-    type: "home-visit",
-    title: "Doctor Home Visit",
-    provider: "Dr. Rajesh Kumar",
-    date: "2024-01-20",
-    time: "11:00 AM",
-    status: "completed",
-    amount: 799,
-    location: "Home Visit",
-  },
-  {
-    id: "BK006",
-    type: "elderly-care",
-    title: "Elderly Care - Daily",
-    provider: "Caregiver Meera",
-    date: "2024-01-18",
-    time: "08:00 AM - 08:00 PM",
-    status: "cancelled",
-    amount: 1499,
-    location: "Home Care",
-  },
-];
-
-const getTypeIcon = (type: Booking["type"]) => {
-  const icons: Record<Booking["type"], string> = {
+const getTypeIcon = (type: BookingType) => {
+  const icons: Record<BookingType, string> = {
     doctor: "🩺",
     medicine: "💊",
     lab: "🧪",
     nurse: "👩‍⚕️",
     "home-visit": "🏠",
     "elderly-care": "👴",
+    emergency: "🚑",
   };
   return icons[type];
 };
 
-const getStatusColor = (status: Booking["status"]) => {
+const getStatusColor = (status: BookingStatus) => {
   switch (status) {
     case "upcoming":
       return "bg-primary/10 text-primary border-primary/20";
@@ -119,21 +57,11 @@ const getStatusColor = (status: Booking["status"]) => {
   }
 };
 
-const BookingCard = ({ booking }: { booking: Booking }) => {
-  const navigate = useNavigate();
-
-  const handleRebook = () => {
-    const routes: Record<Booking["type"], string> = {
-      doctor: "/doctor-appointment",
-      medicine: "/medicine-delivery",
-      lab: "/lab-tests",
-      nurse: "/part-time-nurse",
-      "home-visit": "/doctor-home-visit",
-      "elderly-care": "/elderly-care",
-    };
-    navigate(routes[booking.type]);
-  };
-
+const BookingCard = ({ booking, onCancel, onRebook }: { 
+  booking: Booking; 
+  onCancel: (id: string) => void;
+  onRebook: (type: BookingType) => void;
+}) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -145,7 +73,7 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 flex-1">
               <div className="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center text-2xl shrink-0">
-                {getTypeIcon(booking.type)}
+                {getTypeIcon(booking.booking_type)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -154,12 +82,12 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
                     {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                   </Badge>
                 </div>
-                <p className="text-sm text-muted-foreground mt-0.5">{booking.provider}</p>
+                <p className="text-sm text-muted-foreground mt-0.5">{booking.provider_name}</p>
                 
                 <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
-                    {new Date(booking.date).toLocaleDateString("en-IN", {
+                    {new Date(booking.booking_date).toLocaleDateString("en-IN", {
                       day: "numeric",
                       month: "short",
                       year: "numeric",
@@ -167,7 +95,7 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5" />
-                    {booking.time}
+                    {booking.booking_time}
                   </span>
                   {booking.location && (
                     <span className="flex items-center gap-1">
@@ -190,12 +118,19 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
                 {booking.status === "upcoming" && (
                   <>
                     <DropdownMenuItem>Reschedule</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">Cancel Booking</DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-destructive"
+                      onClick={() => onCancel(booking.id)}
+                    >
+                      Cancel Booking
+                    </DropdownMenuItem>
                   </>
                 )}
                 {booking.status === "completed" && (
                   <>
-                    <DropdownMenuItem onClick={handleRebook}>Book Again</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onRebook(booking.booking_type)}>
+                      Book Again
+                    </DropdownMenuItem>
                     <DropdownMenuItem>Download Invoice</DropdownMenuItem>
                   </>
                 )}
@@ -212,7 +147,7 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
               </Button>
             )}
             {booking.status === "completed" && (
-              <Button size="sm" variant="ghost" className="h-8" onClick={handleRebook}>
+              <Button size="sm" variant="ghost" className="h-8" onClick={() => onRebook(booking.booking_type)}>
                 Book Again
               </Button>
             )}
@@ -225,20 +160,89 @@ const BookingCard = ({ booking }: { booking: Booking }) => {
 
 const BookingHistory = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredBookings = mockBookings.filter((booking) => {
+  useEffect(() => {
+    fetchBookings();
+  }, [user]);
+
+  const fetchBookings = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("booking_date", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching bookings:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load bookings",
+        variant: "destructive",
+      });
+    } else if (data) {
+      const typedBookings: Booking[] = data.map((b) => ({
+        ...b,
+        booking_type: b.booking_type as BookingType,
+        status: b.status as BookingStatus,
+      }));
+      setBookings(typedBookings);
+    }
+    setLoading(false);
+  };
+
+  const handleCancel = async (bookingId: string) => {
+    const { error } = await supabase
+      .from("bookings")
+      .update({ status: "cancelled" })
+      .eq("id", bookingId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to cancel booking",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Booking cancelled",
+        description: "Your booking has been cancelled successfully",
+      });
+      fetchBookings();
+    }
+  };
+
+  const handleRebook = (type: BookingType) => {
+    const routes: Record<BookingType, string> = {
+      doctor: "/doctor-appointment",
+      medicine: "/medicine-delivery",
+      lab: "/lab-tests",
+      nurse: "/part-time-nurse",
+      "home-visit": "/doctor-home-visit",
+      "elderly-care": "/elderly-care",
+      emergency: "/emergency-sos",
+    };
+    navigate(routes[type]);
+  };
+
+  const filteredBookings = bookings.filter((booking) => {
     const matchesSearch =
       booking.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.provider.toLowerCase().includes(searchQuery.toLowerCase());
+      booking.provider_name.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (activeTab === "all") return matchesSearch;
     return matchesSearch && booking.status === activeTab;
   });
 
-  const upcomingCount = mockBookings.filter((b) => b.status === "upcoming").length;
-  const completedCount = mockBookings.filter((b) => b.status === "completed").length;
+  const upcomingCount = bookings.filter((b) => b.status === "upcoming").length;
+  const completedCount = bookings.filter((b) => b.status === "completed").length;
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -291,9 +295,31 @@ const BookingHistory = () => {
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-4 space-y-3">
-            {filteredBookings.length > 0 ? (
+            {loading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="border-border/50">
+                    <CardContent className="p-4">
+                      <div className="flex gap-3 animate-pulse">
+                        <div className="w-12 h-12 rounded-xl bg-muted" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 bg-muted rounded w-3/4" />
+                          <div className="h-3 bg-muted rounded w-1/2" />
+                          <div className="h-3 bg-muted rounded w-1/4" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredBookings.length > 0 ? (
               filteredBookings.map((booking) => (
-                <BookingCard key={booking.id} booking={booking} />
+                <BookingCard 
+                  key={booking.id} 
+                  booking={booking} 
+                  onCancel={handleCancel}
+                  onRebook={handleRebook}
+                />
               ))
             ) : (
               <motion.div
@@ -305,11 +331,15 @@ const BookingHistory = () => {
                   <Calendar className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <h3 className="font-medium text-foreground mb-1">No bookings found</h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground mb-4">
                   {searchQuery
                     ? "Try a different search term"
                     : "Your bookings will appear here"}
                 </p>
+                <Button onClick={() => navigate("/")} className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Book a Service
+                </Button>
               </motion.div>
             )}
           </TabsContent>
