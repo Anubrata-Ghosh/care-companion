@@ -1,48 +1,16 @@
-import { MapPin, Bell, User, ChevronDown, LogIn } from "lucide-react";
+import { MapPin, Bell, User, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
-  const navigate = useNavigate();
-  const { user, signOut } = useAuth();
-
-  const getInitials = () => {
-    const name = user?.user_metadata?.full_name;
-    if (name) {
-      return name
-        .split(" ")
-        .map((n: string) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
-    }
-    return user?.email?.slice(0, 2).toUpperCase() || "U";
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
-
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/50 safe-top">
       <div className="container flex items-center justify-between h-16 px-4">
         {/* Logo & Location */}
         <div className="flex items-center gap-3">
           <motion.div 
-            className="flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-2"
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            onClick={() => navigate("/")}
           >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-soft">
               <span className="text-primary-foreground font-bold text-lg">C</span>
@@ -74,44 +42,9 @@ const Header = () => {
             <Bell className="w-5 h-5 text-foreground" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full" />
           </button>
-          
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="p-0.5 rounded-full bg-primary-light hover:bg-primary-muted transition-colors">
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage src={user.user_metadata?.avatar_url} />
-                    <AvatarFallback className="bg-gradient-primary text-white text-xs font-bold">
-                      {getInitials()}
-                    </AvatarFallback>
-                  </Avatar>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => navigate("/profile")}>
-                  <User className="w-4 h-4 mr-2" />
-                  My Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/bookings")}>
-                  <Bell className="w-4 h-4 mr-2" />
-                  My Bookings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <button 
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
-              onClick={() => navigate("/login")}
-            >
-              <LogIn className="w-4 h-4" />
-              Login
-            </button>
-          )}
+          <button className="p-2 rounded-full bg-primary-light hover:bg-primary-muted transition-colors">
+            <User className="w-5 h-5 text-primary" />
+          </button>
         </motion.div>
       </div>
     </header>
