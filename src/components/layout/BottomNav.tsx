@@ -1,5 +1,6 @@
 import { Home, Calendar, Clock, User } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 interface NavItemProps {
@@ -35,6 +36,17 @@ const NavItem = ({ icon, label, isActive = false, onClick }: NavItemProps) => (
 );
 
 const BottomNav = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const navItems = [
+    { icon: <Home className="w-5 h-5" />, label: "Home", path: "/" },
+    { icon: <Calendar className="w-5 h-5" />, label: "Bookings", path: "/bookings" },
+    { icon: <Clock className="w-5 h-5" />, label: "History", path: "/history" },
+    { icon: <User className="w-5 h-5" />, label: "Profile", path: "/profile" },
+  ];
+
   return (
     <motion.nav 
       className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border/50 safe-bottom"
@@ -43,23 +55,15 @@ const BottomNav = () => {
       transition={{ delay: 0.3, type: "spring", stiffness: 300, damping: 30 }}
     >
       <div className="container flex items-center justify-around py-2 px-4">
-        <NavItem 
-          icon={<Home className="w-5 h-5" />} 
-          label="Home" 
-          isActive={true}
-        />
-        <NavItem 
-          icon={<Calendar className="w-5 h-5" />} 
-          label="Bookings" 
-        />
-        <NavItem 
-          icon={<Clock className="w-5 h-5" />} 
-          label="History" 
-        />
-        <NavItem 
-          icon={<User className="w-5 h-5" />} 
-          label="Profile" 
-        />
+        {navItems.map((item) => (
+          <NavItem
+            key={item.path}
+            icon={item.icon}
+            label={item.label}
+            isActive={currentPath === item.path}
+            onClick={() => navigate(item.path)}
+          />
+        ))}
       </div>
     </motion.nav>
   );
