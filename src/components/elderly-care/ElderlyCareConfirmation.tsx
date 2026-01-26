@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,6 +21,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import type { ElderlyCareBooking } from "@/pages/ElderlyCare";
+import { useCreateBooking } from "@/hooks/useCreateBooking";
 
 interface ElderlyCareConfirmationProps {
   booking: ElderlyCareBooking;
@@ -27,6 +29,8 @@ interface ElderlyCareConfirmationProps {
 
 const ElderlyCareConfirmation = ({ booking }: ElderlyCareConfirmationProps) => {
   const navigate = useNavigate();
+  const { createBooking } = useCreateBooking();
+  const hasSavedRef = useRef(false);
   const { caregiver, package: selectedPackage, carePlan, elderlyDetails } = booking;
 
   const bookingId = `EC${Date.now().toString().slice(-8)}`;
@@ -52,6 +56,28 @@ const ElderlyCareConfirmation = ({ booking }: ElderlyCareConfirmationProps) => {
   const nightCareExtra =
     carePlan.nightCare && selectedPackage?.type === "daily" ? 500 : 0;
   const totalPrice = basePrice + nightCareExtra;
+
+  useEffect(() => {
+    if (hasSavedRef.current) return;
+    hasSavedRef.current = true;
+
+    const saveBooking = async () => {
+      if (!elderlyDetails.startDate || !caregiver) return;
+
+      await createBooking({
+        bookingType: "elderly-care",
+        title: `Elderly Care - ${selectedPackage?.name || "Care Package"}`,
+        providerName: caregiver.name,
+        bookingDate: format(elderlyDetails.startDate, "yyyy-MM-dd"),
+        bookingTime: selectedPackage?.duration || "Full Day",
+        amount: totalPrice,
+        location: elderlyDetails.address,
+        notes: `Patient: ${elderlyDetails.name}, Age: ${elderlyDetails.age}. Services: ${selectedServices.join(", ")}`,
+      });
+    };
+
+    saveBooking();
+  }, []);
 
   return (
     <div className="px-4 py-6 space-y-6">

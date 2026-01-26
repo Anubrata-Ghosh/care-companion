@@ -1,9 +1,11 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Calendar, Clock, MapPin, User, FileText, Download, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
 import type { LabBooking } from "@/pages/LabTests";
+import { useCreateBooking } from "@/hooks/useCreateBooking";
 
 interface LabConfirmationProps {
   booking: LabBooking;
@@ -23,7 +25,33 @@ const getTimeSlotLabel = (slotId: string) => {
 };
 
 const LabConfirmation = ({ booking, onTrackReports }: LabConfirmationProps) => {
+  const { createBooking } = useCreateBooking();
+  const hasSavedRef = useRef(false);
   const totalAmount = booking.tests.reduce((sum, t) => sum + (t.discountPrice || t.price), 0);
+
+  useEffect(() => {
+    if (hasSavedRef.current) return;
+    hasSavedRef.current = true;
+
+    const saveBooking = async () => {
+      if (!booking.date || booking.tests.length === 0) return;
+
+      const testNames = booking.tests.map(t => t.name).join(", ");
+      
+      await createBooking({
+        bookingType: "lab",
+        title: `Lab Tests (${booking.tests.length} tests)`,
+        providerName: booking.technician?.name || "Assigned Technician",
+        bookingDate: format(booking.date, "yyyy-MM-dd"),
+        bookingTime: getTimeSlotLabel(booking.timeSlot),
+        amount: totalAmount,
+        location: booking.address,
+        notes: testNames,
+      });
+    };
+
+    saveBooking();
+  }, []);
 
   return (
     <div className="px-4 py-6 space-y-6">

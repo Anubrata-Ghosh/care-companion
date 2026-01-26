@@ -1,8 +1,11 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Check, MapPin, Clock, Package, Phone, MessageCircle, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { useCreateBooking } from "@/hooks/useCreateBooking";
 
 interface CartItem {
   id: string;
@@ -29,6 +32,31 @@ interface OrderConfirmationProps {
 }
 
 const OrderConfirmation = ({ orderDetails, onTrackOrder, onGoHome }: OrderConfirmationProps) => {
+  const { createBooking } = useCreateBooking();
+  const hasSavedRef = useRef(false);
+
+  useEffect(() => {
+    if (hasSavedRef.current) return;
+    hasSavedRef.current = true;
+
+    const saveBooking = async () => {
+      const medicineNames = orderDetails.items.map(i => `${i.name} x${i.quantity}`).join(", ");
+      
+      await createBooking({
+        bookingType: "medicine",
+        title: `Medicine Order (${orderDetails.items.length} items)`,
+        providerName: orderDetails.pharmacy || "Apollo Pharmacy",
+        bookingDate: format(new Date(), "yyyy-MM-dd"),
+        bookingTime: orderDetails.estimatedDelivery,
+        amount: orderDetails.total,
+        location: orderDetails.deliveryAddress,
+        notes: medicineNames,
+      });
+    };
+
+    saveBooking();
+  }, []);
+
   const copyOrderId = () => {
     navigator.clipboard.writeText(orderDetails.orderId);
     toast.success("Order ID copied!");
