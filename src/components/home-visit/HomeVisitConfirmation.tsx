@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -13,12 +14,12 @@ import {
   Home,
   Star,
   Shield,
-  Stethoscope,
   FileText,
   AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HomeVisitBookingDetails } from "@/pages/DoctorHomeVisit";
+import { useCreateBooking } from "@/hooks/useCreateBooking";
 
 interface HomeVisitConfirmationProps {
   booking: HomeVisitBookingDetails;
@@ -26,6 +27,8 @@ interface HomeVisitConfirmationProps {
 
 const HomeVisitConfirmation = ({ booking }: HomeVisitConfirmationProps) => {
   const navigate = useNavigate();
+  const { createBooking } = useCreateBooking();
+  const hasSavedRef = useRef(false);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
@@ -37,6 +40,28 @@ const HomeVisitConfirmation = ({ booking }: HomeVisitConfirmationProps) => {
       year: "numeric",
     });
   };
+
+  useEffect(() => {
+    if (hasSavedRef.current) return;
+    hasSavedRef.current = true;
+
+    const saveBooking = async () => {
+      if (!booking.date || !booking.doctor) return;
+
+      await createBooking({
+        bookingType: "home-visit",
+        title: `Home Visit - ${booking.doctorType === "GP" ? "General Physician" : booking.specialty || "Specialist"}`,
+        providerName: booking.doctor.name,
+        bookingDate: booking.date,
+        bookingTime: booking.timeSlot,
+        amount: booking.totalAmount,
+        location: booking.address,
+        notes: booking.symptoms ? `Patient: ${booking.patientName}, Symptoms: ${booking.symptoms}` : `Patient: ${booking.patientName}`,
+      });
+    };
+
+    saveBooking();
+  }, []);
 
   return (
     <div className="px-4 space-y-5 pb-8">

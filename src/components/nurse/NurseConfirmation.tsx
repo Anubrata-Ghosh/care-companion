@@ -1,9 +1,11 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Calendar, Clock, MapPin, Phone, Share2, Download, Shield, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import type { NurseBookingDetails } from "@/pages/PartTimeNurse";
 import { format } from "date-fns";
+import { useCreateBooking } from "@/hooks/useCreateBooking";
 
 interface NurseConfirmationProps {
   booking: NurseBookingDetails;
@@ -11,6 +13,35 @@ interface NurseConfirmationProps {
 
 const NurseConfirmation = ({ booking }: NurseConfirmationProps) => {
   const navigate = useNavigate();
+  const { createBooking } = useCreateBooking();
+  const hasSavedRef = useRef(false);
+
+  useEffect(() => {
+    if (hasSavedRef.current) return;
+    hasSavedRef.current = true;
+
+    const saveBooking = async () => {
+      if (!booking.date || !booking.nurse) return;
+
+      const serviceNames = booking.services.map(s => s.name).join(", ");
+      const duration = booking.bookingType === "hourly" 
+        ? `${booking.hours} hour${(booking.hours || 0) > 1 ? "s" : ""}`
+        : `${booking.days} day${(booking.days || 0) > 1 ? "s" : ""}`;
+      
+      await createBooking({
+        bookingType: "nurse",
+        title: `Nurse Service (${duration})`,
+        providerName: booking.nurse.name,
+        bookingDate: format(new Date(booking.date), "yyyy-MM-dd"),
+        bookingTime: booking.timeSlot,
+        amount: booking.totalAmount,
+        location: booking.address || "42, Lotus Apartments, Sector 15, Noida",
+        notes: `Services: ${serviceNames}`,
+      });
+    };
+
+    saveBooking();
+  }, []);
 
   return (
     <div className="px-4 py-6">

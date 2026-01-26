@@ -1,9 +1,11 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Calendar, Clock, MapPin, Video, Phone, MessageCircle, Download, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BookingDetails } from "@/pages/DoctorAppointment";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { useCreateBooking } from "@/hooks/useCreateBooking";
 
 interface AppointmentConfirmationProps {
   booking: BookingDetails;
@@ -12,7 +14,31 @@ interface AppointmentConfirmationProps {
 
 const AppointmentConfirmation = ({ booking }: AppointmentConfirmationProps) => {
   const navigate = useNavigate();
+  const { createBooking } = useCreateBooking();
   const bookingId = `CN${Date.now().toString().slice(-8)}`;
+  const hasSavedRef = useRef(false);
+
+  useEffect(() => {
+    if (hasSavedRef.current) return;
+    hasSavedRef.current = true;
+
+    const saveBooking = async () => {
+      if (!booking.doctor || !booking.date) return;
+
+      await createBooking({
+        bookingType: "doctor",
+        title: `${booking.consultationType === "video" ? "Video" : "In-Person"} Consultation`,
+        providerName: booking.doctor.name,
+        bookingDate: format(booking.date, "yyyy-MM-dd"),
+        bookingTime: booking.timeSlot,
+        amount: booking.doctor.consultationFee,
+        location: booking.nursingHome?.address || "Video Consultation",
+        notes: `Specialty: ${booking.doctor.specialty}`,
+      });
+    };
+
+    saveBooking();
+  }, []);
 
   return (
     <div className="px-4 space-y-6">
