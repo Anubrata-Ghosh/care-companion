@@ -57,8 +57,8 @@ const getStatusColor = (status: BookingStatus) => {
   }
 };
 
-const BookingCard = ({ booking, onCancel, onRebook }: { 
-  booking: Booking; 
+const BookingCard = ({ booking, onCancel, onRebook }: {
+  booking: Booking;
   onCancel: (id: string) => void;
   onRebook: (type: BookingType) => void;
 }) => {
@@ -68,11 +68,11 @@ const BookingCard = ({ booking, onCancel, onRebook }: {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="overflow-hidden border-border/50 hover:shadow-md transition-shadow">
+      <Card className="overflow-hidden border-border/50 hover:shadow-lg hover:border-primary/30 transition-all">
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 flex-1">
-              <div className="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center text-2xl shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-2xl shrink-0 border border-primary/20">
                 {getTypeIcon(booking.booking_type)}
               </div>
               <div className="flex-1 min-w-0">
