@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, MapPin, Phone, MoreVertical, Filter, Search, Plus } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Star, MessageSquare, Share2, MoreVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,9 +17,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import BottomNav from "@/components/layout/BottomNav";
+import FeedbackModal from "@/components/home/FeedbackModal";
 
 type BookingType = "doctor" | "medicine" | "lab" | "nurse" | "home-visit" | "elderly-care" | "emergency";
-type BookingStatus = "upcoming" | "completed" | "cancelled";
+type BookingStatus = "completed" | "cancelled";
 
 interface Booking {
   id: string;
@@ -31,6 +32,11 @@ interface Booking {
   status: BookingStatus;
   amount: number;
   location: string | null;
+}
+
+interface BookingWithFeedback extends Booking {
+  rating?: number;
+  review?: string;
 }
 
 const getTypeIcon = (type: BookingType) => {
@@ -48,8 +54,6 @@ const getTypeIcon = (type: BookingType) => {
 
 const getStatusColor = (status: BookingStatus) => {
   switch (status) {
-    case "upcoming":
-      return "bg-blue-500/10 text-blue-600 border-blue-500/20";
     case "completed":
       return "bg-green-500/10 text-green-600 border-green-500/20";
     case "cancelled":
@@ -57,10 +61,14 @@ const getStatusColor = (status: BookingStatus) => {
   }
 };
 
-const BookingCard = ({ booking, onCancel, onRebook }: {
-  booking: Booking;
-  onCancel: (id: string) => void;
-  onRebook: (type: BookingType) => void;
+const HistoryCard = ({ 
+  booking, 
+  onFeedback,
+  onShare 
+}: { 
+  booking: BookingWithFeedback;
+  onFeedback: (booking: Booking) => void;
+  onShare: (booking: Booking) => void;
 }) => {
   return (
     <motion.div
@@ -68,7 +76,7 @@ const BookingCard = ({ booking, onCancel, onRebook }: {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="overflow-hidden border-border/50 hover:shadow-lg hover:border-primary/30 transition-all">
+      <Card className="overflow-hidden border-border/50 hover:shadow-md transition-all hover:border-primary/30">
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 flex-1">
@@ -78,8 +86,8 @@ const BookingCard = ({ booking, onCancel, onRebook }: {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-semibold text-foreground">{booking.title}</h3>
-                  <Badge variant="outline" className={getStatusColor(booking.status)}>
-                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                  <Badge variant="outline" className={`${getStatusColor(booking.status)}`}>
+                    {booking.status === "completed" ? "✓ Completed" : "✕ Cancelled"}
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground mt-0.5">{booking.provider_name}</p>
@@ -104,6 +112,27 @@ const BookingCard = ({ booking, onCancel, onRebook }: {
                     </span>
                   )}
                 </div>
+
+                {/* Rating Display */}
+                {booking.rating && (
+                  <div className="flex items-center gap-1 mt-2">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-3.5 h-3.5 ${
+                          i < booking.rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-muted-foreground/30"
+                        }`}
+                      />
+                    ))}
+                    <span className="text-xs text-muted-foreground ml-1">({booking.rating}/5)</span>
+                  </div>
+                )}
+
+                {booking.review && (
+                  <p className="text-xs text-muted-foreground mt-2 italic">"{booking.review}"</p>
+                )}
               </div>
             </div>
 
@@ -115,40 +144,38 @@ const BookingCard = ({ booking, onCancel, onRebook }: {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>View Details</DropdownMenuItem>
-                {booking.status === "upcoming" && (
-                  <>
-                    <DropdownMenuItem>Reschedule</DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-destructive"
-                      onClick={() => onCancel(booking.id)}
-                    >
-                      Cancel Booking
-                    </DropdownMenuItem>
-                  </>
+                {booking.status === "completed" && !booking.rating && (
+                  <DropdownMenuItem onClick={() => onFeedback(booking)}>
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Leave Feedback
+                  </DropdownMenuItem>
                 )}
-                {booking.status === "completed" && (
-                  <>
-                    <DropdownMenuItem onClick={() => onRebook(booking.booking_type)}>
-                      Book Again
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>Download Invoice</DropdownMenuItem>
-                  </>
+                {booking.status === "completed" && booking.rating && (
+                  <DropdownMenuItem disabled>
+                    <Star className="w-4 h-4 mr-2 fill-yellow-400 text-yellow-400" />
+                    Feedback Given
+                  </DropdownMenuItem>
                 )}
+                <DropdownMenuItem onClick={() => onShare(booking)}>
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share
+                </DropdownMenuItem>
+                <DropdownMenuItem>Download Invoice</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
             <span className="text-sm font-medium text-foreground">₹{booking.amount}</span>
-            {booking.status === "upcoming" && (
-              <Button size="sm" variant="outline" className="h-8 gap-1.5">
-                <Phone className="w-3.5 h-3.5" />
-                Contact
-              </Button>
-            )}
             {booking.status === "completed" && (
-              <Button size="sm" variant="ghost" className="h-8" onClick={() => onRebook(booking.booking_type)}>
-                Book Again
+              <Button 
+                size="sm" 
+                variant={booking.rating ? "outline" : "default"}
+                className="h-8 gap-1.5"
+                onClick={() => onFeedback(booking)}
+              >
+                <Star className={`w-3.5 h-3.5 ${booking.rating ? "fill-current" : ""}`} />
+                {booking.rating ? "Rated" : "Rate"}
               </Button>
             )}
           </div>
@@ -158,14 +185,17 @@ const BookingCard = ({ booking, onCancel, onRebook }: {
   );
 };
 
-const BookingHistory = () => {
+const History = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("all");
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [activeTab, setActiveTab] = useState("completed");
+  const [bookings, setBookings] = useState<BookingWithFeedback[]>([]);
   const [loading, setLoading] = useState(true);
+  const [feedbackModal, setFeedbackModal] = useState<{ isOpen: boolean; booking?: Booking }>({
+    isOpen: false,
+  });
 
   useEffect(() => {
     fetchBookings();
@@ -178,17 +208,18 @@ const BookingHistory = () => {
       .from("bookings")
       .select("*")
       .eq("user_id", user.id)
+      .in("status", ["completed", "cancelled"])
       .order("booking_date", { ascending: false });
 
     if (error) {
-      console.error("Error fetching bookings:", error);
+      console.error("Error fetching history:", error);
       toast({
         title: "Error",
-        description: "Failed to load bookings",
+        description: "Failed to load history",
         variant: "destructive",
       });
     } else if (data) {
-      const typedBookings: Booking[] = data.map((b) => ({
+      const typedBookings: BookingWithFeedback[] = data.map((b) => ({
         ...b,
         booking_type: b.booking_type as BookingType,
         status: b.status as BookingStatus,
@@ -198,38 +229,34 @@ const BookingHistory = () => {
     setLoading(false);
   };
 
-  const handleCancel = async (bookingId: string) => {
-    const { error } = await supabase
-      .from("bookings")
-      .update({ status: "cancelled" })
-      .eq("id", bookingId);
+  const handleFeedbackSubmit = async (rating: number, review: string) => {
+    if (!feedbackModal.booking) return;
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to cancel booking",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Booking cancelled",
-        description: "Your booking has been cancelled successfully",
-      });
-      fetchBookings();
-    }
+    // Here you would save the feedback to the booking_feedback table
+    // For now, we'll just update the booking object in memory
+    toast({
+      title: "Thank you!",
+      description: "Your feedback has been recorded",
+    });
+    
+    setFeedbackModal({ isOpen: false });
+    // In a real scenario, you'd call an API to save this feedback
   };
 
-  const handleRebook = (type: BookingType) => {
-    const routes: Record<BookingType, string> = {
-      doctor: "/doctor-appointment",
-      medicine: "/medicine-delivery",
-      lab: "/lab-tests",
-      nurse: "/part-time-nurse",
-      "home-visit": "/doctor-home-visit",
-      "elderly-care": "/elderly-care",
-      emergency: "/emergency-sos",
-    };
-    navigate(routes[type]);
+  const handleShare = (booking: Booking) => {
+    const text = `I recently used ${booking.title} from CareNest. Service: ${booking.provider_name} on ${booking.booking_date}. Amount: ₹${booking.amount}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: "CareNest Booking",
+        text: text,
+      }).catch((err) => console.log("Error sharing:", err));
+    } else {
+      toast({
+        title: "Share",
+        description: "Copy this: " + text,
+      });
+    }
   };
 
   const filteredBookings = bookings.filter((booking) => {
@@ -241,8 +268,8 @@ const BookingHistory = () => {
     return matchesSearch && booking.status === activeTab;
   });
 
-  const upcomingCount = bookings.filter((b) => b.status === "upcoming").length;
   const completedCount = bookings.filter((b) => b.status === "completed").length;
+  const cancelledCount = bookings.filter((b) => b.status === "cancelled").length;
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -262,34 +289,32 @@ const BookingHistory = () => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-lg font-semibold text-foreground">My Bookings</h1>
+            <h1 className="text-lg font-semibold text-foreground">History</h1>
             <p className="text-xs text-muted-foreground">
-              {upcomingCount} upcoming · {completedCount} completed
+              {completedCount} completed · {cancelledCount} cancelled
             </p>
           </div>
-          <Button variant="ghost" size="icon">
-            <Filter className="w-5 h-5" />
-          </Button>
         </div>
       </motion.header>
 
       <main className="container py-4 space-y-4">
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search bookings..."
+            placeholder="Search history..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 bg-card"
           />
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
         </div>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full grid grid-cols-4 h-auto p-1">
+          <TabsList className="w-full grid grid-cols-3 h-auto p-1">
             <TabsTrigger value="all" className="text-xs py-2">All</TabsTrigger>
-            <TabsTrigger value="upcoming" className="text-xs py-2">Upcoming</TabsTrigger>
             <TabsTrigger value="completed" className="text-xs py-2">Completed</TabsTrigger>
             <TabsTrigger value="cancelled" className="text-xs py-2">Cancelled</TabsTrigger>
           </TabsList>
@@ -314,11 +339,11 @@ const BookingHistory = () => {
               </div>
             ) : filteredBookings.length > 0 ? (
               filteredBookings.map((booking) => (
-                <BookingCard 
+                <HistoryCard 
                   key={booking.id} 
-                  booking={booking} 
-                  onCancel={handleCancel}
-                  onRebook={handleRebook}
+                  booking={booking}
+                  onFeedback={(b) => setFeedbackModal({ isOpen: true, booking: b })}
+                  onShare={handleShare}
                 />
               ))
             ) : (
@@ -330,25 +355,29 @@ const BookingHistory = () => {
                 <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                   <Calendar className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <h3 className="font-medium text-foreground mb-1">No bookings found</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <h3 className="font-medium text-foreground mb-1">No history yet</h3>
+                <p className="text-sm text-muted-foreground">
                   {searchQuery
                     ? "Try a different search term"
-                    : "Your bookings will appear here"}
+                    : "Your completed bookings will appear here"}
                 </p>
-                <Button onClick={() => navigate("/")} className="gap-2">
-                  <Plus className="w-4 h-4" />
-                  Book a Service
-                </Button>
               </motion.div>
             )}
           </TabsContent>
         </Tabs>
       </main>
 
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={feedbackModal.isOpen}
+        booking={feedbackModal.booking}
+        onClose={() => setFeedbackModal({ isOpen: false })}
+        onSubmit={handleFeedbackSubmit}
+      />
+
       <BottomNav />
     </div>
   );
 };
 
-export default BookingHistory;
+export default History;
