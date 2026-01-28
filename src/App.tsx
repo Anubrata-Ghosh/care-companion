@@ -17,6 +17,7 @@ import EmergencySOS from "./pages/EmergencySOS";
 import DoctorHomeVisit from "./pages/DoctorHomeVisit";
 import ElderlyCare from "./pages/ElderlyCare";
 import BookingHistory from "./pages/BookingHistory";
+import History from "./pages/History";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
