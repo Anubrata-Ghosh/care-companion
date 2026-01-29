@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, MapPin, Phone, MoreVertical, Filter, Search, Plus } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Calendar, Clock, MapPin, Phone, MoreVertical, Filter, Search, Plus, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import BottomNav from "@/components/layout/BottomNav";
 
 type BookingType = "doctor" | "medicine" | "lab" | "nurse" | "home-visit" | "elderly-care" | "emergency";
-type BookingStatus = "upcoming" | "completed" | "cancelled";
+type BookingStatus = "upcoming" | "completed" | "cancelled" | "rescheduled";
 
 interface Booking {
   id: string;
@@ -54,12 +54,135 @@ const getStatusColor = (status: BookingStatus) => {
       return "bg-green-500/10 text-green-600 border-green-500/20";
     case "cancelled":
       return "bg-destructive/10 text-destructive border-destructive/20";
+    case "rescheduled":
+      return "bg-orange-500/10 text-orange-600 border-orange-500/20";
   }
 };
 
-const BookingCard = ({ booking, onCancel, onRebook }: {
+const RescheduleModal = ({ 
+  booking, 
+  onClose, 
+  onReschedule 
+}: { 
+  booking: Booking | null; 
+  onClose: () => void;
+  onReschedule: (bookingId: string, newDate: string, newTime: string) => Promise<void>;
+}) => {
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  if (!booking) return null;
+
+  const handleSubmit = async () => {
+    if (!selectedDate || !selectedTime) {
+      return;
+    }
+    setLoading(true);
+    await onReschedule(booking.id, selectedDate, selectedTime);
+    setLoading(false);
+    onClose();
+  };
+
+  const timeSlots = [
+    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "14:00", "14:30", "15:00", "15:30", "16:00", "16:30",
+    "17:00", "17:30", "18:00"
+  ];
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 bg-black/50 flex items-end md:items-center md:justify-center"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ y: 100 }}
+          animate={{ y: 0 }}
+          exit={{ y: 100 }}
+          className="bg-card rounded-t-2xl md:rounded-2xl w-full md:max-w-md p-6 space-y-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground">Reschedule Booking</h2>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-foreground">Select New Date</label>
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                className="mt-2"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-foreground">Select Time</label>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {timeSlots.map((time) => (
+                  <button
+                    key={time}
+                    onClick={() => setSelectedTime(time)}
+                    className={`p-2 rounded-lg border transition-all text-sm font-medium ${
+                      selectedTime === time
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-border hover:border-primary/50 text-foreground"
+                    }`}
+                  >
+                    {time}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+              <p className="text-sm text-foreground">
+                <strong>New Schedule:</strong>
+                {selectedDate && selectedTime && (
+                  <span className="ml-2">
+                    {new Date(selectedDate).toLocaleDateString("en-IN")} at {selectedTime}
+                  </span>
+                )}
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button 
+                variant="outline" 
+                onClick={onClose}
+                className="flex-1"
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSubmit}
+                className="flex-1 bg-gradient-primary"
+                disabled={!selectedDate || !selectedTime || loading}
+              >
+                {loading ? "Rescheduling..." : "Reschedule"}
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+const BookingCard = ({ booking, onCancel, onReschedule, onRebook }: {
   booking: Booking;
   onCancel: (id: string) => void;
+  onReschedule: (booking: Booking) => void;
   onRebook: (type: BookingType) => void;
 }) => {
   return (
@@ -117,7 +240,9 @@ const BookingCard = ({ booking, onCancel, onRebook }: {
                 <DropdownMenuItem>View Details</DropdownMenuItem>
                 {booking.status === "upcoming" && (
                   <>
-                    <DropdownMenuItem>Reschedule</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onReschedule(booking)}>
+                      Reschedule
+                    </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-destructive"
                       onClick={() => onCancel(booking.id)}
@@ -133,6 +258,11 @@ const BookingCard = ({ booking, onCancel, onRebook }: {
                     </DropdownMenuItem>
                     <DropdownMenuItem>Download Invoice</DropdownMenuItem>
                   </>
+                )}
+                {booking.status === "cancelled" && (
+                  <DropdownMenuItem onClick={() => onRebook(booking.booking_type)}>
+                    Book Similar Service
+                  </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -166,6 +296,7 @@ const BookingHistory = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rescheduleBooking, setRescheduleBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     fetchBookings();
@@ -201,7 +332,10 @@ const BookingHistory = () => {
   const handleCancel = async (bookingId: string) => {
     const { error } = await supabase
       .from("bookings")
-      .update({ status: "cancelled" })
+      .update({ 
+        status: "cancelled",
+        updated_at: new Date().toISOString()
+      })
       .eq("id", bookingId);
 
     if (error) {
@@ -214,6 +348,32 @@ const BookingHistory = () => {
       toast({
         title: "Booking cancelled",
         description: "Your booking has been cancelled successfully",
+      });
+      fetchBookings();
+    }
+  };
+
+  const handleReschedule = async (bookingId: string, newDate: string, newTime: string) => {
+    const { error } = await supabase
+      .from("bookings")
+      .update({ 
+        booking_date: newDate,
+        booking_time: newTime,
+        status: "rescheduled",
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", bookingId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to reschedule booking",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Booking rescheduled",
+        description: `Your booking has been rescheduled to ${newDate} at ${newTime}`,
       });
       fetchBookings();
     }
@@ -246,6 +406,13 @@ const BookingHistory = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      {/* Reschedule Modal */}
+      <RescheduleModal
+        booking={rescheduleBooking}
+        onClose={() => setRescheduleBooking(null)}
+        onReschedule={handleReschedule}
+      />
+
       {/* Header */}
       <motion.header
         className="sticky top-0 z-40 glass border-b border-border/50"
@@ -318,6 +485,7 @@ const BookingHistory = () => {
                   key={booking.id} 
                   booking={booking} 
                   onCancel={handleCancel}
+                  onReschedule={setRescheduleBooking}
                   onRebook={handleRebook}
                 />
               ))
