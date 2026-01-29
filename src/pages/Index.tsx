@@ -6,6 +6,7 @@ import ServicesGrid from "@/components/home/ServicesGrid";
 import PromoCard from "@/components/home/PromoCard";
 import TrustBadges from "@/components/home/TrustBadges";
 import HealthTipsCard from "@/components/home/HealthTipsCard";
+import FeaturedPlaces from "@/components/home/FeaturedPlaces";
 import { motion } from "framer-motion";
 
 const Index = () => {
@@ -39,10 +40,13 @@ const Index = () => {
         
         {/* Services Grid */}
         <ServicesGrid />
-        
+
+        {/* Featured Places Across India */}
+        <FeaturedPlaces />
+
         {/* Trust Badges */}
         <TrustBadges />
-        
+
         {/* Health Tips */}
         <HealthTipsCard />
       </main>
