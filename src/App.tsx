@@ -19,6 +19,8 @@ import ElderlyCare from "./pages/ElderlyCare";
 import BookingHistory from "./pages/BookingHistory";
 import History from "./pages/History";
 import ServiceProviderDashboard from "./pages/ServiceProviderDashboard";
+import NursingHomeDetails from "./pages/NursingHomeDetails";
+import DoctorDetails from "./pages/DoctorDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -61,6 +63,8 @@ const App = () => (
                 <ServiceProviderDashboard />
               </ProtectedRoute>
             } />
+            <Route path="/nursing-home/:id" element={<NursingHomeDetails />} />
+            <Route path="/doctor/:id" element={<DoctorDetails />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
