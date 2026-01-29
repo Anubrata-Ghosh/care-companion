@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, User, Heart, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Heart, ArrowLeft, Stethoscope, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, type UserRole } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const Signup = () => {
@@ -15,6 +15,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();
@@ -27,6 +28,15 @@ const Signup = () => {
       toast({
         title: "Missing fields",
         description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!userRole) {
+      toast({
+        title: "Select account type",
+        description: "Please select whether you're a patient or service provider",
         variant: "destructive",
       });
       return;
@@ -51,7 +61,7 @@ const Signup = () => {
     }
 
     setLoading(true);
-    const { error } = await signUp(email, password, fullName);
+    const { error } = await signUp(email, password, fullName, userRole);
     setLoading(false);
 
     if (error) {
@@ -63,7 +73,7 @@ const Signup = () => {
     } else {
       toast({
         title: "Account created!",
-        description: "Welcome to CareNest. You're now logged in.",
+        description: `Welcome to CareNest as a ${userRole === 'patient' ? 'patient' : 'service provider'}!`,
       });
       navigate("/", { replace: true });
     }
@@ -88,7 +98,7 @@ const Signup = () => {
       </motion.header>
 
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-4 pb-8">
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -112,6 +122,83 @@ const Signup = () => {
             
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4">
+                {/* Role Selection */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">I am a:</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Patient Option */}
+                    <motion.button
+                      type="button"
+                      onClick={() => setUserRole("patient")}
+                      className={`relative p-4 rounded-xl border-2 transition-all ${
+                        userRole === "patient"
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50 bg-card"
+                      }`}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Users className="w-6 h-6 mx-auto mb-2 text-primary" />
+                      <div className="font-semibold text-sm text-foreground">Patient</div>
+                      <div className="text-xs text-muted-foreground">Seek care</div>
+                      {userRole === "patient" && (
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">✓</span>
+                        </div>
+                      )}
+                    </motion.button>
+
+                    {/* Service Provider Option */}
+                    <motion.button
+                      type="button"
+                      onClick={() => setUserRole("service_provider")}
+                      className={`relative p-4 rounded-xl border-2 transition-all ${
+                        userRole === "service_provider"
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50 bg-card"
+                      }`}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Stethoscope className="w-6 h-6 mx-auto mb-2 text-primary" />
+                      <div className="font-semibold text-sm text-foreground">Provider</div>
+                      <div className="text-xs text-muted-foreground">Offer services</div>
+                      {userRole === "service_provider" && (
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">✓</span>
+                        </div>
+                      )}
+                    </motion.button>
+                  </div>
+                </div>
+
+                {/* Role Description */}
+                {userRole && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm text-foreground"
+                  >
+                    {userRole === "patient" ? (
+                      <>
+                        <strong>Patient Account</strong>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Book appointments, order medicines, track health, and manage medical records
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <strong>Service Provider Account</strong>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Offer healthcare services as a doctor, nursing home, ambulance, or delivery partner
+                        </p>
+                      </>
+                    )}
+                  </motion.div>
+                )}
+
+                <hr className="my-4" />
+
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
                   <div className="relative">
@@ -186,7 +273,7 @@ const Signup = () => {
                 <Button 
                   type="submit" 
                   className="w-full bg-gradient-primary hover:opacity-90"
-                  disabled={loading}
+                  disabled={loading || !userRole}
                 >
                   {loading ? "Creating account..." : "Create Account"}
                 </Button>
