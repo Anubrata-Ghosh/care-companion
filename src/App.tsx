@@ -18,6 +18,7 @@ import DoctorHomeVisit from "./pages/DoctorHomeVisit";
 import ElderlyCare from "./pages/ElderlyCare";
 import BookingHistory from "./pages/BookingHistory";
 import History from "./pages/History";
+import ServiceProviderDashboard from "./pages/ServiceProviderDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,11 @@ const App = () => (
             <Route path="/history" element={
               <ProtectedRoute>
                 <History />
+              </ProtectedRoute>
+            } />
+            <Route path="/service-provider-dashboard" element={
+              <ProtectedRoute>
+                <ServiceProviderDashboard />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
