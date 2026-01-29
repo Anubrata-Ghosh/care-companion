@@ -21,6 +21,8 @@ import History from "./pages/History";
 import ServiceProviderDashboard from "./pages/ServiceProviderDashboard";
 import NursingHomeDetails from "./pages/NursingHomeDetails";
 import DoctorDetails from "./pages/DoctorDetails";
+import NursingHomeProvider from "./pages/NursingHomeProvider";
+import PatientAds from "./pages/PatientAds";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -65,6 +67,16 @@ const App = () => (
             } />
             <Route path="/nursing-home/:id" element={<NursingHomeDetails />} />
             <Route path="/doctor/:id" element={<DoctorDetails />} />
+            <Route path="/nursing-home-provider" element={
+              <ProtectedRoute>
+                <NursingHomeProvider />
+              </ProtectedRoute>
+            } />
+            <Route path="/patient-ads" element={
+              <ProtectedRoute>
+                <PatientAds />
+              </ProtectedRoute>
+            } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
