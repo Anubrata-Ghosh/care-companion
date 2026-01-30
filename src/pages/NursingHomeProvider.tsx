@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, MapPin, Phone, Users, TrendingUp, Search, Filter, MessageCircle, Eye } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Phone, Users, TrendingUp, Search, Filter, MessageCircle, Eye, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
