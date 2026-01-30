@@ -53,16 +53,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, role: UserRole) => {
+  const signUp = async (email: string, password: string, fullName: string, role: UserRole, service?: ServiceType) => {
+    const metadata: Record<string, string> = {
+      full_name: fullName,
+      role: role,
+    };
+
+    if (service) {
+      metadata.service_type = service;
+      setServiceType(service);
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: {
-          full_name: fullName,
-          role: role,
-        },
+        data: metadata,
       },
     });
     if (!error) {
