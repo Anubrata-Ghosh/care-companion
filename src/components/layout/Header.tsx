@@ -133,6 +133,18 @@ const Header = () => {
                   <Bell className="w-4 h-4 mr-2" />
                   My Bookings
                 </DropdownMenuItem>
+                {userRole === "patient" && (
+                  <DropdownMenuItem onClick={() => navigate("/patient-ads")}>
+                    <Megaphone className="w-4 h-4 mr-2" />
+                    Run Ads
+                  </DropdownMenuItem>
+                )}
+                {userRole === "service_provider" && (
+                  <DropdownMenuItem onClick={() => navigate("/nursing-home-provider")}>
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Patient Appointments
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                   <LogIn className="w-4 h-4 mr-2" />
