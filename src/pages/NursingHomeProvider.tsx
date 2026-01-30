@@ -31,11 +31,39 @@ interface PatientBooking {
 
 const NursingHomeProvider = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, serviceType } = useAuth();
   const [bookings, setBookings] = useState<PatientBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+
+  // Only allow nursing home providers
+  if (serviceType !== "nursing_home") {
+    return (
+      <div className="min-h-screen bg-background pb-24">
+        <Header />
+        <main className="p-4 pt-6">
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 mb-6">
+            <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-yellow-900 dark:text-yellow-200">Access Restricted</h3>
+              <p className="text-sm text-yellow-800 dark:text-yellow-300 mt-1">
+                This page is only available for nursing home providers. Your current role: <span className="font-medium">{serviceType || "Not set"}</span>
+              </p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => navigate("/service-provider-dashboard")}
+              >
+                Back to Dashboard
+              </Button>
+            </div>
+          </div>
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
 
   // Mock patient bookings data
   const mockBookings: PatientBooking[] = [
