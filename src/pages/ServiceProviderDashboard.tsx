@@ -82,7 +82,7 @@ const ServiceProviderDashboard = () => {
       id: "nurse-caretaker",
       title: "Nurse Caretaker",
       description: "Register and manage your caretaking services",
-      icon: <Nurse className="w-8 h-8" />,
+      icon: <UserCheck className="w-8 h-8" />,
       color: "text-purple-500",
       bgColor: "bg-purple-50 dark:bg-purple-950",
       requirements: ["Nursing certificate", "Experience", "Health check"],
