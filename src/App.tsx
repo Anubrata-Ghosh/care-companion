@@ -24,6 +24,7 @@ import NursingHomeDetails from "./pages/NursingHomeDetails";
 import DoctorDetails from "./pages/DoctorDetails";
 import NursingHomeProvider from "./pages/NursingHomeProvider";
 import PatientAds from "./pages/PatientAds";
+import ProviderAds from "./pages/ProviderAds";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
