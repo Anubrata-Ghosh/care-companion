@@ -27,7 +27,7 @@ const Signup = () => {
   const serviceOptions: { type: ServiceType; label: string; description: string; icon: React.ReactNode }[] = [
     { type: "nursing_home", label: "Nursing Home", description: "Healthcare facility", icon: <Home className="w-6 h-6" /> },
     { type: "doctor", label: "Doctor", description: "Medical practitioner", icon: <Stethoscope className="w-6 h-6" /> },
-    { type: "nurse_caretaker", label: "Nurse Caretaker", description: "In-home care", icon: <Nurse className="w-6 h-6" /> },
+    { type: "nurse_caretaker", label: "Nurse Caretaker", description: "In-home care", icon: <UserCheck className="w-6 h-6" /> },
     { type: "ambulance", label: "Ambulance Service", description: "Emergency transport", icon: <Ambulance className="w-6 h-6" /> },
     { type: "delivery", label: "Delivery Partner", description: "Medicine delivery", icon: <Package className="w-6 h-6" /> },
   ];
