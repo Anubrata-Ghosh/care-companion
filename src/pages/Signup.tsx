@@ -34,7 +34,7 @@ const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!fullName || !email || !password || !confirmPassword) {
       toast({
         title: "Missing fields",
@@ -48,6 +48,15 @@ const Signup = () => {
       toast({
         title: "Select account type",
         description: "Please select whether you're a patient or service provider",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (userRole === "service_provider" && !serviceType) {
+      toast({
+        title: "Select service type",
+        description: "Please select what service you want to provide",
         variant: "destructive",
       });
       return;
@@ -72,7 +81,7 @@ const Signup = () => {
     }
 
     setLoading(true);
-    const { error } = await signUp(email, password, fullName, userRole);
+    const { error } = await signUp(email, password, fullName, userRole, serviceType);
     setLoading(false);
 
     if (error) {
