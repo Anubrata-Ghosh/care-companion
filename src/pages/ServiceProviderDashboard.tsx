@@ -21,12 +21,18 @@ interface ServiceOption {
 
 const ServiceProviderDashboard = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, serviceType } = useAuth();
   const { isServiceProvider } = useUserRole();
 
   // Redirect if not a service provider
   if (!isServiceProvider) {
     navigate("/");
+    return null;
+  }
+
+  // Redirect if service type not set
+  if (!serviceType) {
+    navigate("/signup");
     return null;
   }
 
