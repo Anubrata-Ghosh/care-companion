@@ -1,4 +1,4 @@
-import { MapPin, Bell, User, ChevronDown, LogIn, Megaphone, Calendar } from "lucide-react";
+import { MapPin, Bell, User, ChevronDown, LogIn, Megaphone, Calendar, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
