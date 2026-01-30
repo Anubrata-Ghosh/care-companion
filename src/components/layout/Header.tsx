@@ -32,7 +32,7 @@ const locations = [
 
 const Header = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, userRole } = useAuth();
   const [selectedLocation, setSelectedLocation] = useState("Mumbai");
 
   const getInitials = () => {
