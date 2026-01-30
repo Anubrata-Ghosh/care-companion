@@ -167,10 +167,30 @@ const ServiceProviderDashboard = () => {
           </div>
         </section>
 
+        {/* Service Type Notice */}
+        <section className="px-4 mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-primary/10 border border-primary/30 rounded-xl p-4 flex items-start gap-3"
+          >
+            <AlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-foreground">Registered Service Type</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                You are registered as: <span className="text-primary font-semibold">{currentService?.title}</span>
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Note: Your service type cannot be changed. If you need to offer a different service, please create a new account.
+              </p>
+            </div>
+          </motion.div>
+        </section>
+
         {/* Register Services Section */}
         <section className="px-4 mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-4">
-            Register Your Services
+            Complete Your Registration
           </h2>
           
           <div className="space-y-3">
