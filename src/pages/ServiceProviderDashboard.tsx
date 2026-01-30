@@ -58,8 +58,9 @@ const ServiceProviderDashboard = () => {
     }
   };
 
-  const services: ServiceOption[] = [
-    {
+  // Map serviceType to service configuration
+  const serviceMap: Record<string, ServiceOption> = {
+    "nursing_home": {
       id: "nursing-home",
       title: "Nursing Home",
       description: "Register and manage your nursing home facility",
@@ -68,7 +69,7 @@ const ServiceProviderDashboard = () => {
       bgColor: "bg-blue-50 dark:bg-blue-950",
       requirements: ["Registration document", "License", "Staff details"],
     },
-    {
+    "doctor": {
       id: "doctor",
       title: "Doctor",
       description: "Register and manage your doctor profile",
@@ -77,7 +78,16 @@ const ServiceProviderDashboard = () => {
       bgColor: "bg-green-50 dark:bg-green-950",
       requirements: ["Medical degree", "License", "Specialization"],
     },
-    {
+    "nurse_caretaker": {
+      id: "nurse-caretaker",
+      title: "Nurse Caretaker",
+      description: "Register and manage your caretaking services",
+      icon: <Nurse className="w-8 h-8" />,
+      color: "text-purple-500",
+      bgColor: "bg-purple-50 dark:bg-purple-950",
+      requirements: ["Nursing certificate", "Experience", "Health check"],
+    },
+    "ambulance": {
       id: "ambulance",
       title: "Ambulance Service",
       description: "Register your ambulance service",
@@ -86,7 +96,7 @@ const ServiceProviderDashboard = () => {
       bgColor: "bg-red-50 dark:bg-red-950",
       requirements: ["Vehicle details", "Driver license", "Insurance"],
     },
-    {
+    "delivery": {
       id: "delivery",
       title: "Delivery Partner",
       description: "Register as medicine/delivery partner",
@@ -95,7 +105,10 @@ const ServiceProviderDashboard = () => {
       bgColor: "bg-orange-50 dark:bg-orange-950",
       requirements: ["Identity proof", "Transport", "Banking details"],
     },
-  ];
+  };
+
+  const currentService = serviceMap[serviceType];
+  const services = currentService ? [currentService] : [];
 
   return (
     <div className="min-h-screen bg-background">
