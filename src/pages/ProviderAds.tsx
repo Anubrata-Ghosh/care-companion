@@ -135,7 +135,7 @@ const ProviderAds = () => {
               className="p-4 rounded-xl bg-card border border-border/50"
             >
               <div className="flex items-center gap-2 mb-2">
-                <Click className="w-5 h-5 text-primary" />
+                <MousePointer className="w-5 h-5 text-primary" />
                 <div className="text-xs text-muted-foreground">Total Clicks</div>
               </div>
               <div className="text-2xl font-bold text-primary">{totalClicks}</div>
