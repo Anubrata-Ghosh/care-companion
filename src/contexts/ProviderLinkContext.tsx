@@ -1,9 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { useAuth } from "./AuthContext";
-
 export interface LinkedProvider {
   id: string;
   name: string;
