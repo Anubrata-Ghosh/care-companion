@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, User, Heart, ArrowLeft, Stethoscope, Users } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Heart, ArrowLeft, Stethoscope, Users, Ambulance, Package, Home, Nurse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, type UserRole } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+
+export type ServiceType = "nursing_home" | "doctor" | "nurse_caretaker" | "ambulance" | "delivery";
 
 const Signup = () => {
   const [fullName, setFullName] = useState("");
@@ -16,10 +18,19 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [serviceType, setServiceType] = useState<ServiceType | null>(null);
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const serviceOptions: { type: ServiceType; label: string; description: string; icon: React.ReactNode }[] = [
+    { type: "nursing_home", label: "Nursing Home", description: "Healthcare facility", icon: <Home className="w-6 h-6" /> },
+    { type: "doctor", label: "Doctor", description: "Medical practitioner", icon: <Stethoscope className="w-6 h-6" /> },
+    { type: "nurse_caretaker", label: "Nurse Caretaker", description: "In-home care", icon: <Nurse className="w-6 h-6" /> },
+    { type: "ambulance", label: "Ambulance Service", description: "Emergency transport", icon: <Ambulance className="w-6 h-6" /> },
+    { type: "delivery", label: "Delivery Partner", description: "Medicine delivery", icon: <Package className="w-6 h-6" /> },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
