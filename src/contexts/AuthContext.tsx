@@ -3,13 +3,15 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 export type UserRole = "patient" | "service_provider";
+export type ServiceType = "nursing_home" | "doctor" | "nurse_caretaker" | "ambulance" | "delivery";
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   userRole: UserRole | null;
-  signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<{ error: Error | null }>;
+  serviceType: ServiceType | null;
+  signUp: (email: string, password: string, fullName: string, role: UserRole, serviceType?: ServiceType) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
