@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [serviceType, setServiceType] = useState<ServiceType | null>(null);
 
   useEffect(() => {
     // Set up auth state listener BEFORE checking session
@@ -31,7 +32,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         const role = (session?.user?.user_metadata?.role as UserRole) || null;
+        const service = (session?.user?.user_metadata?.service_type as ServiceType) || null;
         setUserRole(role);
+        setServiceType(service);
         setLoading(false);
       }
     );
@@ -41,7 +44,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       const role = (session?.user?.user_metadata?.role as UserRole) || null;
+      const service = (session?.user?.user_metadata?.service_type as ServiceType) || null;
       setUserRole(role);
+      setServiceType(service);
       setLoading(false);
     });
 
