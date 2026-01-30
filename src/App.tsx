@@ -80,6 +80,11 @@ const App = () => (
                 <PatientAds />
               </ProtectedRoute>
             } />
+            <Route path="/provider-ads" element={
+              <ProtectedRoute>
+                <ProviderAds />
+              </ProtectedRoute>
+            } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
