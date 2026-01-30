@@ -140,10 +140,20 @@ const Header = () => {
                   </DropdownMenuItem>
                 )}
                 {userRole === "service_provider" && (
-                  <DropdownMenuItem onClick={() => navigate("/nursing-home-provider")}>
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Patient Appointments
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem onClick={() => navigate("/nursing-home-provider")}>
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Patient Appointments
+                    </DropdownMenuItem>
+                    {/* Show ads feature only for doctors and nursing homes */}
+                    {(user?.user_metadata?.service_type === "doctor" ||
+                      user?.user_metadata?.service_type === "nursing_home") && (
+                      <DropdownMenuItem onClick={() => navigate("/provider-ads")}>
+                        <Zap className="w-4 h-4 mr-2" />
+                        Run Ads
+                      </DropdownMenuItem>
+                    )}
+                  </>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
