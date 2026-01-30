@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Zap, TrendingUp, Eye, Click, BarChart3, Plus, Pause, Play } from "lucide-react";
+import { ArrowLeft, Zap, TrendingUp, Eye, MousePointer, BarChart3, Plus, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Header from "@/components/layout/Header";
