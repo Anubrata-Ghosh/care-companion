@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import EmergencyButton from "@/components/home/EmergencyButton";
@@ -6,9 +9,26 @@ import ServicesGrid from "@/components/home/ServicesGrid";
 import PromoCard from "@/components/home/PromoCard";
 import TrustBadges from "@/components/home/TrustBadges";
 import HealthTipsCard from "@/components/home/HealthTipsCard";
+import FeaturedPlaces from "@/components/home/FeaturedPlaces";
+import { useUserRole } from "@/hooks/useUserRole";
 import { motion } from "framer-motion";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { isServiceProvider } = useUserRole();
+
+  // Redirect service providers to their dashboard
+  useEffect(() => {
+    if (isServiceProvider) {
+      navigate("/service-provider-dashboard");
+    }
+  }, [isServiceProvider, navigate]);
+
+  // Show loading or nothing while redirecting
+  if (isServiceProvider) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -39,10 +59,13 @@ const Index = () => {
         
         {/* Services Grid */}
         <ServicesGrid />
-        
+
+        {/* Featured Places Across India */}
+        <FeaturedPlaces />
+
         {/* Trust Badges */}
         <TrustBadges />
-        
+
         {/* Health Tips */}
         <HealthTipsCard />
       </main>

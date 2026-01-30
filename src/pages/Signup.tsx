@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, User, Heart, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Heart, ArrowLeft, Stethoscope, Users, Ambulance, Package, Home, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, type UserRole } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+
+export type ServiceType = "nursing_home" | "doctor" | "nurse_caretaker" | "ambulance" | "delivery";
 
 const Signup = () => {
   const [fullName, setFullName] = useState("");
@@ -15,18 +17,46 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [serviceType, setServiceType] = useState<ServiceType | null>(null);
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const serviceOptions: { type: ServiceType; label: string; description: string; icon: React.ReactNode }[] = [
+    { type: "nursing_home", label: "Nursing Home", description: "Healthcare facility", icon: <Home className="w-6 h-6" /> },
+    { type: "doctor", label: "Doctor", description: "Medical practitioner", icon: <Stethoscope className="w-6 h-6" /> },
+    { type: "nurse_caretaker", label: "Nurse Caretaker", description: "In-home care", icon: <UserCheck className="w-6 h-6" /> },
+    { type: "ambulance", label: "Ambulance Service", description: "Emergency transport", icon: <Ambulance className="w-6 h-6" /> },
+    { type: "delivery", label: "Delivery Partner", description: "Medicine delivery", icon: <Package className="w-6 h-6" /> },
+  ];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!fullName || !email || !password || !confirmPassword) {
       toast({
         title: "Missing fields",
         description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!userRole) {
+      toast({
+        title: "Select account type",
+        description: "Please select whether you're a patient or service provider",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (userRole === "service_provider" && !serviceType) {
+      toast({
+        title: "Select service type",
+        description: "Please select what service you want to provide",
         variant: "destructive",
       });
       return;
@@ -51,7 +81,7 @@ const Signup = () => {
     }
 
     setLoading(true);
-    const { error } = await signUp(email, password, fullName);
+    const { error } = await signUp(email, password, fullName, userRole, serviceType);
     setLoading(false);
 
     if (error) {
@@ -63,7 +93,7 @@ const Signup = () => {
     } else {
       toast({
         title: "Account created!",
-        description: "Welcome to CareNest. You're now logged in.",
+        description: `Welcome to CareNest as a ${userRole === 'patient' ? 'patient' : 'service provider'}!`,
       });
       navigate("/", { replace: true });
     }
@@ -88,7 +118,7 @@ const Signup = () => {
       </motion.header>
 
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-4 pb-8">
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -112,6 +142,122 @@ const Signup = () => {
             
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4">
+                {/* Role Selection */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">I am a:</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Patient Option */}
+                    <motion.button
+                      type="button"
+                      onClick={() => setUserRole("patient")}
+                      className={`relative p-4 rounded-xl border-2 transition-all ${
+                        userRole === "patient"
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50 bg-card"
+                      }`}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Users className="w-6 h-6 mx-auto mb-2 text-primary" />
+                      <div className="font-semibold text-sm text-foreground">Patient</div>
+                      <div className="text-xs text-muted-foreground">Seek care</div>
+                      {userRole === "patient" && (
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">✓</span>
+                        </div>
+                      )}
+                    </motion.button>
+
+                    {/* Service Provider Option */}
+                    <motion.button
+                      type="button"
+                      onClick={() => setUserRole("service_provider")}
+                      className={`relative p-4 rounded-xl border-2 transition-all ${
+                        userRole === "service_provider"
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50 bg-card"
+                      }`}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Stethoscope className="w-6 h-6 mx-auto mb-2 text-primary" />
+                      <div className="font-semibold text-sm text-foreground">Provider</div>
+                      <div className="text-xs text-muted-foreground">Offer services</div>
+                      {userRole === "service_provider" && (
+                        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">✓</span>
+                        </div>
+                      )}
+                    </motion.button>
+                  </div>
+                </div>
+
+                {/* Role Description */}
+                {userRole && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm text-foreground"
+                  >
+                    {userRole === "patient" ? (
+                      <>
+                        <strong>Patient Account</strong>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Book appointments, order medicines, track health, and manage medical records
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <strong>Service Provider Account</strong>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Offer healthcare services as a doctor, nursing home, ambulance, or delivery partner
+                        </p>
+                      </>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Service Type Selection for Providers */}
+                {userRole === "service_provider" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-3"
+                  >
+                    <Label className="text-base font-semibold">Select Service Type:</Label>
+                    <p className="text-xs text-muted-foreground mb-2">Note: This cannot be changed later</p>
+                    <div className="grid grid-cols-1 gap-2">
+                      {serviceOptions.map((option) => (
+                        <motion.button
+                          key={option.type}
+                          type="button"
+                          onClick={() => setServiceType(option.type)}
+                          className={`relative p-3 rounded-lg border-2 transition-all flex items-center gap-3 ${
+                            serviceType === option.type
+                              ? "border-primary bg-primary/10"
+                              : "border-border hover:border-primary/50 bg-card"
+                          }`}
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className="text-primary">{option.icon}</div>
+                          <div className="text-left flex-1">
+                            <div className="font-semibold text-sm text-foreground">{option.label}</div>
+                            <div className="text-xs text-muted-foreground">{option.description}</div>
+                          </div>
+                          {serviceType === option.type && (
+                            <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">✓</span>
+                            </div>
+                          )}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                <hr className="my-4" />
+
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
                   <div className="relative">
@@ -186,7 +332,7 @@ const Signup = () => {
                 <Button 
                   type="submit" 
                   className="w-full bg-gradient-primary hover:opacity-90"
-                  disabled={loading}
+                  disabled={loading || !userRole}
                 >
                   {loading ? "Creating account..." : "Create Account"}
                 </Button>

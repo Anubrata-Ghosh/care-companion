@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ProviderLinkProvider } from "@/contexts/ProviderLinkContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -18,6 +19,12 @@ import DoctorHomeVisit from "./pages/DoctorHomeVisit";
 import ElderlyCare from "./pages/ElderlyCare";
 import BookingHistory from "./pages/BookingHistory";
 import History from "./pages/History";
+import ServiceProviderDashboard from "./pages/ServiceProviderDashboard";
+import NursingHomeDetails from "./pages/NursingHomeDetails";
+import DoctorDetails from "./pages/DoctorDetails";
+import NursingHomeProvider from "./pages/NursingHomeProvider";
+import PatientAds from "./pages/PatientAds";
+import ProviderAds from "./pages/ProviderAds";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,9 +33,10 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+        <ProviderLinkProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
@@ -55,10 +63,33 @@ const App = () => (
                 <History />
               </ProtectedRoute>
             } />
+            <Route path="/service-provider-dashboard" element={
+              <ProtectedRoute>
+                <ServiceProviderDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/nursing-home/:id" element={<NursingHomeDetails />} />
+            <Route path="/doctor/:id" element={<DoctorDetails />} />
+            <Route path="/nursing-home-provider" element={
+              <ProtectedRoute>
+                <NursingHomeProvider />
+              </ProtectedRoute>
+            } />
+            <Route path="/patient-ads" element={
+              <ProtectedRoute>
+                <PatientAds />
+              </ProtectedRoute>
+            } />
+            <Route path="/provider-ads" element={
+              <ProtectedRoute>
+                <ProviderAds />
+              </ProtectedRoute>
+            } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
+          </BrowserRouter>
+        </ProviderLinkProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

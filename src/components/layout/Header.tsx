@@ -1,8 +1,9 @@
-import { MapPin, Bell, User, ChevronDown, LogIn } from "lucide-react";
+import { MapPin, Bell, User, ChevronDown, LogIn, Megaphone, Calendar, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,9 +12,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const locations = [
+  "Mumbai",
+  "Delhi",
+  "Bangalore",
+  "Hyderabad",
+  "Chennai",
+  "Kolkata",
+  "Pune",
+  "Ahmedabad",
+  "Jaipur",
+  "Lucknow",
+  "Noida",
+  "Gurugram",
+  "Madurai",
+  "Surat",
+  "Patna",
+];
+
 const Header = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, userRole } = useAuth();
+  const [selectedLocation, setSelectedLocation] = useState("Mumbai");
 
   const getInitials = () => {
     const name = user?.user_metadata?.full_name;
@@ -52,16 +72,33 @@ const Header = () => {
         </div>
 
         {/* Location Selector */}
-        <motion.button 
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 transition-colors"
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <MapPin className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-foreground">Mumbai</span>
-          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
-        </motion.button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <motion.button
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 transition-colors"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <MapPin className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">{selectedLocation}</span>
+              <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+            </motion.button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="w-56">
+            {locations.map((location) => (
+              <DropdownMenuItem
+                key={location}
+                onClick={() => setSelectedLocation(location)}
+                className={selectedLocation === location ? "bg-primary/10" : ""}
+              >
+                <MapPin className="w-4 h-4 mr-2" />
+                {location}
+                {selectedLocation === location && <span className="ml-auto text-primary">✓</span>}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Right Actions */}
         <motion.div 
@@ -96,6 +133,28 @@ const Header = () => {
                   <Bell className="w-4 h-4 mr-2" />
                   My Bookings
                 </DropdownMenuItem>
+                {userRole === "patient" && (
+                  <DropdownMenuItem onClick={() => navigate("/patient-ads")}>
+                    <Megaphone className="w-4 h-4 mr-2" />
+                    Run Ads
+                  </DropdownMenuItem>
+                )}
+                {userRole === "service_provider" && (
+                  <>
+                    <DropdownMenuItem onClick={() => navigate("/nursing-home-provider")}>
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Patient Appointments
+                    </DropdownMenuItem>
+                    {/* Show ads feature only for doctors and nursing homes */}
+                    {(user?.user_metadata?.service_type === "doctor" ||
+                      user?.user_metadata?.service_type === "nursing_home") && (
+                      <DropdownMenuItem onClick={() => navigate("/provider-ads")}>
+                        <Zap className="w-4 h-4 mr-2" />
+                        Run Ads
+                      </DropdownMenuItem>
+                    )}
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                   <LogIn className="w-4 h-4 mr-2" />
