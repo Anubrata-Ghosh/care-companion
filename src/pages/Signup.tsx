@@ -217,6 +217,45 @@ const Signup = () => {
                   </motion.div>
                 )}
 
+                {/* Service Type Selection for Providers */}
+                {userRole === "service_provider" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-3"
+                  >
+                    <Label className="text-base font-semibold">Select Service Type:</Label>
+                    <p className="text-xs text-muted-foreground mb-2">Note: This cannot be changed later</p>
+                    <div className="grid grid-cols-1 gap-2">
+                      {serviceOptions.map((option) => (
+                        <motion.button
+                          key={option.type}
+                          type="button"
+                          onClick={() => setServiceType(option.type)}
+                          className={`relative p-3 rounded-lg border-2 transition-all flex items-center gap-3 ${
+                            serviceType === option.type
+                              ? "border-primary bg-primary/10"
+                              : "border-border hover:border-primary/50 bg-card"
+                          }`}
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className="text-primary">{option.icon}</div>
+                          <div className="text-left flex-1">
+                            <div className="font-semibold text-sm text-foreground">{option.label}</div>
+                            <div className="text-xs text-muted-foreground">{option.description}</div>
+                          </div>
+                          {serviceType === option.type && (
+                            <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">✓</span>
+                            </div>
+                          )}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
                 <hr className="my-4" />
 
                 <div className="space-y-2">
