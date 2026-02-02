@@ -127,6 +127,26 @@ const App = () => (
                 <PricingSettings />
               </ProtectedRoute>
             } />
+            <Route path="/doctor-settings" element={
+              <ProtectedRoute>
+                <PricingSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/nurse-settings" element={
+              <ProtectedRoute>
+                <PricingSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/ambulance-settings" element={
+              <ProtectedRoute>
+                <PricingSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/delivery-settings" element={
+              <ProtectedRoute>
+                <PricingSettings />
+              </ProtectedRoute>
+            } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
