@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Building2, Users, Ambulance, Package, Plus, Bell, TrendingUp, Calendar, DollarSign, AlertCircle, UserCheck, FileText, Settings, Zap } from "lucide-react";
@@ -24,15 +25,17 @@ const ServiceProviderDashboard = () => {
   const { user, signOut, serviceType } = useAuth();
   const { isServiceProvider } = useUserRole();
 
-  // Redirect if not a service provider
-  if (!isServiceProvider) {
-    navigate("/");
-    return null;
-  }
+  // Handle redirects in useEffect to avoid setState in render
+  useEffect(() => {
+    if (!isServiceProvider) {
+      navigate("/");
+    } else if (!serviceType) {
+      navigate("/signup");
+    }
+  }, [isServiceProvider, serviceType, navigate]);
 
-  // Redirect if service type not set
-  if (!serviceType) {
-    navigate("/signup");
+  // Prevent rendering while redirecting
+  if (!isServiceProvider || !serviceType) {
     return null;
   }
 
