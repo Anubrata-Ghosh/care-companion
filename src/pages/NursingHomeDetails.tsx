@@ -197,7 +197,7 @@ const NursingHomeDetails = () => {
               variant="ghost"
               size="icon"
               className="bg-black/20 hover:bg-black/40 text-white"
-              onClick={() => toast.success("Share link copied!")}
+              onClick={() => toast({ description: "Share link copied!" })}
             >
               <Share2 className="w-5 h-5" />
             </Button>
