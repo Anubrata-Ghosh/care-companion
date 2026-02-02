@@ -9,6 +9,7 @@ import PromoCard from "@/components/home/PromoCard";
 import TrustBadges from "@/components/home/TrustBadges";
 import HealthTipsCard from "@/components/home/HealthTipsCard";
 import FeaturedPlaces from "@/components/home/FeaturedPlaces";
+import QuickStats from "@/components/home/QuickStats";
 import { useUserRole } from "@/hooks/useUserRole";
 import { motion } from "framer-motion";
 
@@ -46,6 +47,9 @@ const Index = () => {
             How can we help you today?
           </p>
         </motion.section>
+        
+        {/* Quick Stats */}
+        <QuickStats />
         
         {/* Emergency SOS Button */}
         <EmergencyButton />
