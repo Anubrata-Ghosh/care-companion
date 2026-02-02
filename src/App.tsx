@@ -32,6 +32,7 @@ import DeliveryProvider from "./pages/DeliveryProvider";
 import DoctorRegistration from "./pages/DoctorRegistration";
 import NurseRegistration from "./pages/NurseRegistration";
 import PricingSettings from "./pages/PricingSettings";
+import CreateAdCampaign from "./pages/CreateAdCampaign";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
