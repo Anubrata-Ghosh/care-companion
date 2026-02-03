@@ -38,7 +38,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <HealthChatbot />
-          <BrowserRouter basename={import.meta.env.BASE_URL}>
+          <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
