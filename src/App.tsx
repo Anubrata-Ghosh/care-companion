@@ -35,6 +35,7 @@ import PricingSettings from "./pages/PricingSettings";
 import CreateAdCampaign from "./pages/CreateAdCampaign";
 import ProviderCommunity from "./pages/ProviderCommunity";
 import Connections from "./pages/Connections";
+import JobOpening from "./pages/JobOpening";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
