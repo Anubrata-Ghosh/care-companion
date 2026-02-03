@@ -160,6 +160,11 @@ const App = () => (
                 <ProviderCommunity />
               </ProtectedRoute>
             } />
+            <Route path="/connections" element={
+              <ProtectedRoute>
+                <Connections />
+              </ProtectedRoute>
+            } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
