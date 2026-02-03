@@ -42,7 +42,7 @@ const BottomNav = () => {
 
   const navItems = [
     { icon: <Home className="w-5 h-5" />, label: "Home", path: "/" },
-    { icon: <Calendar className="w-5 h-5" />, label: "Bookings", path: "/bookings" },
+    { icon: <Network className="w-5 h-5" />, label: "Connections", path: "/connections" },
     { icon: <Clock className="w-5 h-5" />, label: "History", path: "/history" },
     { icon: <User className="w-5 h-5" />, label: "Profile", path: "/profile" },
   ];
