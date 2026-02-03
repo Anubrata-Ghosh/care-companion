@@ -188,7 +188,7 @@ const ServiceProviderDashboard = () => {
               className="p-4 rounded-xl bg-card border border-border/50 text-center"
             >
               <TrendingUp className="w-5 h-5 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold text-primary">0</div>
+              <div className="text-2xl font-bold text-primary">1</div>
               <div className="text-xs text-muted-foreground mt-1">Services</div>
             </motion.div>
             <motion.div
@@ -198,7 +198,7 @@ const ServiceProviderDashboard = () => {
               className="p-4 rounded-xl bg-card border border-border/50 text-center"
             >
               <Calendar className="w-5 h-5 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold text-primary">0</div>
+              <div className="text-2xl font-bold text-primary">{bookingCount}</div>
               <div className="text-xs text-muted-foreground mt-1">Bookings</div>
             </motion.div>
             <motion.div
@@ -208,7 +208,7 @@ const ServiceProviderDashboard = () => {
               className="p-4 rounded-xl bg-card border border-border/50 text-center"
             >
               <DollarSign className="w-5 h-5 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold text-primary">₹0</div>
+              <div className="text-2xl font-bold text-primary">₹{earnings}</div>
               <div className="text-xs text-muted-foreground mt-1">Earnings</div>
             </motion.div>
           </div>
