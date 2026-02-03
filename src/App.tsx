@@ -34,6 +34,7 @@ import NurseRegistration from "./pages/NurseRegistration";
 import PricingSettings from "./pages/PricingSettings";
 import CreateAdCampaign from "./pages/CreateAdCampaign";
 import ProviderCommunity from "./pages/ProviderCommunity";
+import Connections from "./pages/Connections";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
