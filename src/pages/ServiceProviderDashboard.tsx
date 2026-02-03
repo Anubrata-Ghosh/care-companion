@@ -32,6 +32,9 @@ const ServiceProviderDashboard = () => {
   const navigate = useNavigate();
   const { user, signOut, serviceType } = useAuth();
   const { isServiceProvider } = useUserRole();
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [earnings, setEarnings] = useState(0);
+  const [bookingCount, setBookingCount] = useState(0);
 
   // Handle redirects in useEffect to avoid setState in render
   useEffect(() => {
@@ -41,6 +44,11 @@ const ServiceProviderDashboard = () => {
       navigate("/signup");
     }
   }, [isServiceProvider, serviceType, navigate]);
+
+  // Fetch appointments and calculate earnings
+  useEffect(() => {
+    fetchAppointmentsData();
+  }, [serviceType]);
 
   // Prevent rendering while redirecting
   if (!isServiceProvider || !serviceType) {
