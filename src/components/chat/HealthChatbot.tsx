@@ -5,7 +5,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Send, Bot, User, Loader2, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
-import ReactMarkdown from "react-markdown";
 
 type Message = {
   role: "user" | "assistant";
@@ -20,6 +19,45 @@ const suggestedQuestions = [
   "What lab tests should I get for a routine checkup?",
   "I need help managing my medications",
 ];
+
+// Simple markdown-like formatting for bold text and bullet points
+function formatMessage(text: string) {
+  // Split by lines to handle bullet points
+  const lines = text.split('\n');
+  
+  return lines.map((line, lineIndex) => {
+    // Handle bullet points
+    const isBullet = line.trim().startsWith('- ') || line.trim().startsWith('* ');
+    const bulletContent = isBullet ? line.trim().slice(2) : line;
+    
+    // Handle bold text with **text**
+    const parts = bulletContent.split(/(\*\*[^*]+\*\*)/g);
+    const formattedParts = parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+
+    if (isBullet) {
+      return (
+        <li key={lineIndex} className="ml-4">
+          {formattedParts}
+        </li>
+      );
+    }
+    
+    if (line.trim() === '') {
+      return <br key={lineIndex} />;
+    }
+    
+    return (
+      <p key={lineIndex} className="mb-1">
+        {formattedParts}
+      </p>
+    );
+  });
+}
 
 export function HealthChatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -204,8 +242,8 @@ export function HealthChatbot() {
                   }`}
                 >
                   {msg.role === "assistant" ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    <div className="[&>p]:leading-relaxed [&>li]:leading-relaxed">
+                      {formatMessage(msg.content)}
                     </div>
                   ) : (
                     msg.content
