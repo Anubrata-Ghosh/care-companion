@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Building2, Users, Ambulance, Package, Plus, Bell, TrendingUp, Calendar, DollarSign, AlertCircle, UserCheck, FileText, Settings, Zap } from "lucide-react";
+import { Building2, Users, Ambulance, Package, Plus, Bell, TrendingUp, Calendar, DollarSign, AlertCircle, UserCheck, FileText, Settings, Zap, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/layout/Header";
