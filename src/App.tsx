@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProviderLinkProvider } from "@/contexts/ProviderLinkContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { HealthChatbot } from "@/components/chat/HealthChatbot";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -36,6 +37,7 @@ const App = () => (
         <ProviderLinkProvider>
           <Toaster />
           <Sonner />
+          <HealthChatbot />
           <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
