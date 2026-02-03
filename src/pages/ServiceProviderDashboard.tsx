@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Building2, Users, Ambulance, Package, Plus, Bell, TrendingUp, Calendar, DollarSign, AlertCircle, UserCheck, FileText, Settings, Zap, Network } from "lucide-react";
@@ -9,6 +9,14 @@ import BottomNav from "@/components/layout/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "sonner";
+
+interface Appointment {
+  id: string;
+  patient_name: string;
+  appointment_date: string;
+  status: string;
+  amount: number;
+}
 
 interface ServiceOption {
   id: string;
