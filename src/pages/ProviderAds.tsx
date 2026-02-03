@@ -70,7 +70,7 @@ const ProviderAds = () => {
   }
 
   const handleCreateCampaign = () => {
-    toast.success("Campaign creation coming soon!");
+    navigate("/create-ad-campaign");
   };
 
   const handleToggleCampaign = (campaignId: string) => {

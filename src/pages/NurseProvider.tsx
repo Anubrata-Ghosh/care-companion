@@ -1,43 +1,41 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, MapPin, Phone, Users, TrendingUp, Search, Filter, MessageCircle, Eye, AlertCircle } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Phone, Users, TrendingUp, Search, Filter, MessageCircle, Eye, AlertCircle, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 
-interface PatientBooking {
+interface Appointment {
   id: string;
   patient_name: string;
   patient_email?: string;
   patient_phone?: string;
-  booking_date: string;
-  booking_time: string;
+  appointment_date: string;
+  appointment_time: string;
   status: string;
   service_type: string;
-  doctor_name: string;
+  location?: string;
   notes?: string;
-  medical_history?: string;
   amount: number;
 }
 
-const NursingHomeProvider = () => {
+const NurseProvider = () => {
   const navigate = useNavigate();
   const { user, serviceType } = useAuth();
-  const [bookings, setBookings] = useState<PatientBooking[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
 
-  // Only allow nursing home providers
-  if (serviceType !== "nursing_home") {
+  // Only allow nurses
+  if (serviceType !== "nurse_caretaker") {
     return (
       <div className="min-h-screen bg-background pb-24">
         <Header />
@@ -47,7 +45,7 @@ const NursingHomeProvider = () => {
             <div>
               <h3 className="font-semibold text-yellow-900 dark:text-yellow-200">Access Restricted</h3>
               <p className="text-sm text-yellow-800 dark:text-yellow-300 mt-1">
-                This page is only available for nursing home providers. Your current role: <span className="font-medium">{serviceType || "Not set"}</span>
+                This page is only available for nurses. Your current role: <span className="font-medium">{serviceType || "Not set"}</span>
               </p>
               <Button
                 variant="outline"
@@ -64,91 +62,72 @@ const NursingHomeProvider = () => {
     );
   }
 
-  // Mock patient bookings data
-  const mockBookings: PatientBooking[] = [
+  // Mock appointments data
+  const mockAppointments: Appointment[] = [
     {
       id: "1",
-      patient_name: "Rahul Singh",
-      patient_email: "rahul@example.com",
+      patient_name: "Mrs. Sharma",
+      patient_email: "sharma@example.com",
       patient_phone: "+91 98765 43210",
-      booking_date: "2024-01-30",
-      booking_time: "10:00",
+      appointment_date: "2024-01-30",
+      appointment_time: "10:00",
       status: "upcoming",
-      service_type: "Cardiology Consultation",
-      doctor_name: "Dr. Rajesh Kumar",
-      notes: "Routine check-up for hypertension",
-      medical_history: "History: Hypertension (5 years), Diabetes (controlled)",
-      amount: 500,
+      service_type: "Home Care Nursing",
+      location: "Bandra, Mumbai",
+      notes: "Daily wound dressing and medication",
+      amount: 600,
     },
     {
       id: "2",
-      patient_name: "Priya Patel",
-      patient_email: "priya@example.com",
+      patient_name: "Mr. Patel",
+      patient_email: "patel@example.com",
       patient_phone: "+91 97654 32109",
-      booking_date: "2024-02-02",
-      booking_time: "14:30",
+      appointment_date: "2024-02-02",
+      appointment_time: "14:30",
       status: "upcoming",
-      service_type: "General Medicine",
-      doctor_name: "Dr. Priya Sharma",
-      notes: "Fever and cough consultation",
-      medical_history: "Allergies: Penicillin, Dust. Medications: Allergy tablets",
-      amount: 400,
+      service_type: "Post-Surgery Care",
+      location: "Andheri, Mumbai",
+      notes: "Post-operative recovery assistance",
+      amount: 800,
     },
     {
       id: "3",
-      patient_name: "Arjun Kumar",
-      patient_email: "arjun@example.com",
+      patient_name: "Ms. Kumar",
+      patient_email: "kumar@example.com",
       patient_phone: "+91 96543 21098",
-      booking_date: "2024-01-28",
-      booking_time: "11:00",
+      appointment_date: "2024-01-28",
+      appointment_time: "11:00",
       status: "completed",
-      service_type: "Orthopedic Consultation",
-      doctor_name: "Dr. Amit Patel",
-      notes: "Follow-up for knee injury",
-      medical_history: "Knee injury (fracture healed), Physio ongoing",
-      amount: 450,
-    },
-    {
-      id: "4",
-      patient_name: "Meera Desai",
-      patient_email: "meera@example.com",
-      patient_phone: "+91 95432 10987",
-      booking_date: "2024-02-05",
-      booking_time: "09:30",
-      status: "upcoming",
-      service_type: "General Check-up",
-      doctor_name: "Dr. Priya Sharma",
-      notes: "Pre-surgery medical clearance",
-      medical_history: "Previous Surgery: Appendix removal (2022). BP: Normal",
-      amount: 300,
+      service_type: "General Nursing",
+      location: "Dadar, Mumbai",
+      notes: "Patient care and monitoring completed",
+      amount: 500,
     },
   ];
 
   useEffect(() => {
-    fetchBookings();
+    fetchAppointments();
   }, [user]);
 
-  const fetchBookings = async () => {
+  const fetchAppointments = async () => {
     setLoading(true);
-    // Simulate fetching bookings from database
-    // In production, this would filter by nursing home ID
     setTimeout(() => {
-      setBookings(mockBookings);
+      setAppointments(mockAppointments);
       setLoading(false);
     }, 500);
   };
 
-  const filteredBookings = bookings.filter((booking) => {
+  const filteredAppointments = appointments.filter((appointment) => {
     const matchesSearch =
-      booking.patient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.doctor_name.toLowerCase().includes(searchQuery.toLowerCase());
+      appointment.patient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      appointment.service_type.toLowerCase().includes(searchQuery.toLowerCase());
 
     if (activeTab === "all") return matchesSearch;
-    return matchesSearch && booking.status === activeTab;
+    return matchesSearch && appointment.status === activeTab;
   });
 
-  const upcomingCount = bookings.filter((b) => b.status === "upcoming").length;
-  const completedCount = bookings.filter((b) => b.status === "completed").length;
+  const upcomingCount = appointments.filter((a) => a.status === "upcoming").length;
+  const completedCount = appointments.filter((a) => a.status === "completed").length;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -163,7 +142,7 @@ const NursingHomeProvider = () => {
     }
   };
 
-  const BookingCard = ({ booking }: { booking: PatientBooking }) => (
+  const AppointmentCard = ({ appointment }: { appointment: Appointment }) => (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -174,16 +153,15 @@ const NursingHomeProvider = () => {
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-foreground">{booking.patient_name}</h3>
-              <Badge variant="outline" className={getStatusColor(booking.status)}>
-                {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+              <h3 className="font-semibold text-foreground">{appointment.patient_name}</h3>
+              <Badge variant="outline" className={getStatusColor(appointment.status)}>
+                {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground">{booking.doctor_name}</p>
+            <p className="text-sm text-muted-foreground">{appointment.service_type}</p>
           </div>
           <div className="text-right">
-            <div className="font-semibold text-primary">₹{booking.amount}</div>
-            <div className="text-xs text-muted-foreground">{booking.service_type}</div>
+            <div className="font-semibold text-primary">₹{appointment.amount}</div>
           </div>
         </div>
 
@@ -192,28 +170,28 @@ const NursingHomeProvider = () => {
           <div className="flex items-center gap-2 text-sm">
             <Calendar className="w-4 h-4 text-muted-foreground" />
             <span className="text-muted-foreground">
-              {new Date(booking.booking_date).toLocaleDateString("en-IN")}
+              {new Date(appointment.appointment_date).toLocaleDateString("en-IN")}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Clock className="w-4 h-4 text-muted-foreground" />
-            <span className="text-muted-foreground">{booking.booking_time}</span>
+            <span className="text-muted-foreground">{appointment.appointment_time}</span>
           </div>
         </div>
 
-        {/* Medical History Section */}
-        <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
-          <h4 className="font-medium text-sm text-foreground mb-2">Medical History</h4>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            {booking.medical_history}
-          </p>
-        </div>
+        {/* Location */}
+        {appointment.location && (
+          <div className="flex items-start gap-2 text-sm">
+            <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+            <span className="text-muted-foreground">{appointment.location}</span>
+          </div>
+        )}
 
         {/* Notes Section */}
-        {booking.notes && (
+        {appointment.notes && (
           <div className="bg-accent/5 border border-accent/20 rounded-lg p-3">
-            <h4 className="font-medium text-sm text-foreground mb-2">Visit Notes</h4>
-            <p className="text-xs text-muted-foreground">{booking.notes}</p>
+            <h4 className="font-medium text-sm text-foreground mb-2">Care Notes</h4>
+            <p className="text-xs text-muted-foreground">{appointment.notes}</p>
           </div>
         )}
 
@@ -224,8 +202,8 @@ const NursingHomeProvider = () => {
             size="sm"
             className="flex-1 gap-1.5"
             onClick={() => {
-              if (booking.patient_phone) {
-                window.location.href = `tel:${booking.patient_phone}`;
+              if (appointment.patient_phone) {
+                window.location.href = `tel:${appointment.patient_phone}`;
               }
             }}
           >
@@ -240,15 +218,6 @@ const NursingHomeProvider = () => {
           >
             <MessageCircle className="w-3.5 h-3.5" />
             Message
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex-1 gap-1.5"
-            onClick={() => toast.info("Detailed medical history coming soon!")}
-          >
-            <Eye className="w-3.5 h-3.5" />
-            Details
           </Button>
         </div>
       </CardContent>
@@ -275,13 +244,18 @@ const NursingHomeProvider = () => {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-lg font-semibold text-foreground">Patient Appointments</h1>
+              <h1 className="text-lg font-semibold text-foreground">My Appointments</h1>
               <p className="text-xs text-muted-foreground">
                 {upcomingCount} upcoming · {completedCount} completed
               </p>
             </div>
-            <Button variant="ghost" size="icon">
-              <Filter className="w-5 h-5" />
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => navigate("/nurse-settings")}
+              title="Settings"
+            >
+              <Settings className="w-5 h-5" />
             </Button>
           </div>
 
@@ -289,7 +263,7 @@ const NursingHomeProvider = () => {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search by patient name or doctor..."
+              placeholder="Search by patient name or service..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-card"
@@ -308,7 +282,7 @@ const NursingHomeProvider = () => {
             className="p-4 rounded-xl bg-card border border-border/50 text-center"
           >
             <Users className="w-5 h-5 text-primary mx-auto mb-2" />
-            <div className="text-2xl font-bold text-primary">{bookings.length}</div>
+            <div className="text-2xl font-bold text-primary">{appointments.length}</div>
             <div className="text-xs text-muted-foreground mt-1">Total Appointments</div>
           </motion.div>
           <motion.div
@@ -318,8 +292,8 @@ const NursingHomeProvider = () => {
             className="p-4 rounded-xl bg-card border border-border/50 text-center"
           >
             <TrendingUp className="w-5 h-5 text-primary mx-auto mb-2" />
-            <div className="text-2xl font-bold text-primary">₹{bookings.reduce((sum, b) => sum + b.amount, 0)}</div>
-            <div className="text-xs text-muted-foreground mt-1">Revenue</div>
+            <div className="text-2xl font-bold text-primary">₹{appointments.reduce((sum, a) => sum + a.amount, 0)}</div>
+            <div className="text-xs text-muted-foreground mt-1">Earnings</div>
           </motion.div>
         </section>
 
@@ -348,9 +322,9 @@ const NursingHomeProvider = () => {
                   </Card>
                 ))}
               </div>
-            ) : filteredBookings.length > 0 ? (
-              filteredBookings.map((booking) => (
-                <BookingCard key={booking.id} booking={booking} />
+            ) : filteredAppointments.length > 0 ? (
+              filteredAppointments.map((appointment) => (
+                <AppointmentCard key={appointment.id} appointment={appointment} />
               ))
             ) : (
               <motion.div
@@ -376,4 +350,4 @@ const NursingHomeProvider = () => {
   );
 };
 
-export default NursingHomeProvider;
+export default NurseProvider;

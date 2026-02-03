@@ -25,6 +25,17 @@ import DoctorDetails from "./pages/DoctorDetails";
 import NursingHomeProvider from "./pages/NursingHomeProvider";
 import PatientAds from "./pages/PatientAds";
 import ProviderAds from "./pages/ProviderAds";
+import DoctorProvider from "./pages/DoctorProvider";
+import NurseProvider from "./pages/NurseProvider";
+import AmbulanceProvider from "./pages/AmbulanceProvider";
+import DeliveryProvider from "./pages/DeliveryProvider";
+import DoctorRegistration from "./pages/DoctorRegistration";
+import NurseRegistration from "./pages/NurseRegistration";
+import PricingSettings from "./pages/PricingSettings";
+import CreateAdCampaign from "./pages/CreateAdCampaign";
+import ProviderCommunity from "./pages/ProviderCommunity";
+import Connections from "./pages/Connections";
+import JobOpening from "./pages/JobOpening";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -83,6 +94,81 @@ const App = () => (
             <Route path="/provider-ads" element={
               <ProtectedRoute>
                 <ProviderAds />
+              </ProtectedRoute>
+            } />
+            <Route path="/doctor-provider" element={
+              <ProtectedRoute>
+                <DoctorProvider />
+              </ProtectedRoute>
+            } />
+            <Route path="/nurse-provider" element={
+              <ProtectedRoute>
+                <NurseProvider />
+              </ProtectedRoute>
+            } />
+            <Route path="/ambulance-provider" element={
+              <ProtectedRoute>
+                <AmbulanceProvider />
+              </ProtectedRoute>
+            } />
+            <Route path="/delivery-provider" element={
+              <ProtectedRoute>
+                <DeliveryProvider />
+              </ProtectedRoute>
+            } />
+            <Route path="/doctor-registration" element={
+              <ProtectedRoute>
+                <DoctorRegistration />
+              </ProtectedRoute>
+            } />
+            <Route path="/nurse-registration" element={
+              <ProtectedRoute>
+                <NurseRegistration />
+              </ProtectedRoute>
+            } />
+            <Route path="/pricing-settings" element={
+              <ProtectedRoute>
+                <PricingSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/doctor-settings" element={
+              <ProtectedRoute>
+                <PricingSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/nurse-settings" element={
+              <ProtectedRoute>
+                <PricingSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/ambulance-settings" element={
+              <ProtectedRoute>
+                <PricingSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/delivery-settings" element={
+              <ProtectedRoute>
+                <PricingSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-ad-campaign" element={
+              <ProtectedRoute>
+                <CreateAdCampaign />
+              </ProtectedRoute>
+            } />
+            <Route path="/provider-community" element={
+              <ProtectedRoute>
+                <ProviderCommunity />
+              </ProtectedRoute>
+            } />
+            <Route path="/connections" element={
+              <ProtectedRoute>
+                <Connections />
+              </ProtectedRoute>
+            } />
+            <Route path="/job-opening" element={
+              <ProtectedRoute>
+                <JobOpening />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
