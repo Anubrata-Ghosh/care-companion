@@ -38,7 +38,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <HealthChatbot />
-          <BrowserRouter>
+          <BrowserRouter basename="/Care-Companion">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
