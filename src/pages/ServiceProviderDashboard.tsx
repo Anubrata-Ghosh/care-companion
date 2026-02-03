@@ -185,11 +185,72 @@ const ServiceProviderDashboard = () => {
           </h2>
 
           <div className="space-y-3">
+            {/* Appointments/Bookings */}
+            {(serviceType === "doctor" || serviceType === "nurse_caretaker" || serviceType === "nursing_home") && (
+              <motion.button
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0 }}
+                onClick={() => {
+                  if (serviceType === "doctor") navigate("/doctor-provider");
+                  else if (serviceType === "nurse_caretaker") navigate("/nurse-provider");
+                  else if (serviceType === "nursing_home") navigate("/nursing-home-provider");
+                }}
+                className="w-full bg-card border border-border/50 rounded-xl hover:shadow-lg hover:border-blue-500/30 transition-all overflow-hidden"
+              >
+                <div className="flex items-start gap-4 p-4">
+                  <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg text-blue-500 flex-shrink-0">
+                    <Calendar className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-foreground">
+                      {serviceType === "nursing_home" ? "Patient Appointments" : "My Appointments"}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {serviceType === "nursing_home"
+                        ? "Manage patient bookings and schedules"
+                        : "View and manage your appointments"}
+                    </p>
+                  </div>
+                </div>
+              </motion.button>
+            )}
+
+            {/* Order Bookings for Ambulance/Delivery */}
+            {(serviceType === "ambulance" || serviceType === "delivery") && (
+              <motion.button
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0 }}
+                onClick={() => {
+                  if (serviceType === "ambulance") navigate("/ambulance-provider");
+                  else navigate("/delivery-provider");
+                }}
+                className="w-full bg-card border border-border/50 rounded-xl hover:shadow-lg hover:border-blue-500/30 transition-all overflow-hidden"
+              >
+                <div className="flex items-start gap-4 p-4">
+                  <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg text-blue-500 flex-shrink-0">
+                    <Package className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-foreground">
+                      {serviceType === "ambulance" ? "Booking Requests" : "Delivery Orders"}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {serviceType === "ambulance"
+                        ? "View and manage ambulance bookings"
+                        : "View and manage delivery orders"}
+                    </p>
+                  </div>
+                </div>
+              </motion.button>
+            )}
+
             {/* Community Connection - For All Service Types */}
             <motion.button
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0 }}
+              transition={{ delay: 0.1 }}
               onClick={() => navigate("/provider-community")}
               className="w-full bg-card border border-border/50 rounded-xl hover:shadow-lg hover:border-cyan-500/30 transition-all overflow-hidden"
             >
