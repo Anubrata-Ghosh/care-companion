@@ -55,6 +55,46 @@ const ServiceProviderDashboard = () => {
     return null;
   }
 
+  const fetchAppointmentsData = () => {
+    // Mock data based on service type
+    const mockAppointments: Record<string, Appointment[]> = {
+      doctor: [
+        { id: "1", patient_name: "Rajesh Kumar", appointment_date: "2024-01-30", status: "completed", amount: 500 },
+        { id: "2", patient_name: "Priya Patel", appointment_date: "2024-02-02", status: "completed", amount: 750 },
+        { id: "3", patient_name: "Arjun Singh", appointment_date: "2024-01-28", status: "completed", amount: 500 },
+      ],
+      nurse_caretaker: [
+        { id: "1", patient_name: "Mrs. Sharma", appointment_date: "2024-01-30", status: "completed", amount: 300 },
+        { id: "2", patient_name: "Mr. Patel", appointment_date: "2024-02-01", status: "completed", amount: 350 },
+      ],
+      nursing_home: [
+        { id: "1", patient_name: "Patient A", appointment_date: "2024-01-30", status: "completed", amount: 2000 },
+        { id: "2", patient_name: "Patient B", appointment_date: "2024-01-31", status: "completed", amount: 2000 },
+        { id: "3", patient_name: "Patient C", appointment_date: "2024-02-01", status: "completed", amount: 2000 },
+      ],
+      ambulance: [
+        { id: "1", patient_name: "Emergency Call", appointment_date: "2024-01-30", status: "completed", amount: 1000 },
+        { id: "2", patient_name: "Patient Transfer", appointment_date: "2024-02-01", status: "completed", amount: 800 },
+      ],
+      delivery: [
+        { id: "1", patient_name: "Order 001", appointment_date: "2024-01-30", status: "completed", amount: 200 },
+        { id: "2", patient_name: "Order 002", appointment_date: "2024-02-01", status: "completed", amount: 250 },
+        { id: "3", patient_name: "Order 003", appointment_date: "2024-02-02", status: "completed", amount: 180 },
+      ],
+    };
+
+    const serviceAppointments = mockAppointments[serviceType] || [];
+    setAppointments(serviceAppointments);
+
+    // Calculate earnings from completed appointments
+    const totalEarnings = serviceAppointments
+      .filter(apt => apt.status === "completed")
+      .reduce((sum, apt) => sum + apt.amount, 0);
+
+    setEarnings(totalEarnings);
+    setBookingCount(serviceAppointments.length);
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate("/login");
