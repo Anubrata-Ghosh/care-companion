@@ -154,6 +154,11 @@ const App = () => (
                 <CreateAdCampaign />
               </ProtectedRoute>
             } />
+            <Route path="/provider-community" element={
+              <ProtectedRoute>
+                <ProviderCommunity />
+              </ProtectedRoute>
+            } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
