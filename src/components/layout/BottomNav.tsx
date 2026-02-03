@@ -39,12 +39,17 @@ const NavItem = ({ icon, label, isActive = false, onClick }: NavItemProps) => (
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { serviceType } = useAuth();
   const currentPath = location.pathname;
+
+  // Show "Job Opening" for doctors and nurses, "History" for others
+  const historyLabel = (serviceType === "doctor" || serviceType === "nurse_caretaker") ? "Job Opening" : "History";
+  const historyPath = (serviceType === "doctor" || serviceType === "nurse_caretaker") ? "/job-opening" : "/history";
 
   const navItems = [
     { icon: <Home className="w-5 h-5" />, label: "Home", path: "/" },
     { icon: <Network className="w-5 h-5" />, label: "Connections", path: "/connections" },
-    { icon: <Clock className="w-5 h-5" />, label: "History", path: "/history" },
+    { icon: <Clock className="w-5 h-5" />, label: historyLabel, path: historyPath },
     { icon: <User className="w-5 h-5" />, label: "Profile", path: "/profile" },
   ];
 
