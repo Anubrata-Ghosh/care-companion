@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Building2, Users, Ambulance, Package, Plus, Bell, TrendingUp, Calendar, DollarSign, AlertCircle, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,17 +25,14 @@ const ServiceProviderDashboard = () => {
   const { user, signOut, serviceType } = useAuth();
   const { isServiceProvider } = useUserRole();
 
-  // Redirect if not a service provider
-  if (!isServiceProvider) {
-    navigate("/");
-    return null;
-  }
-
-  // Redirect if service type not set
-  if (!serviceType) {
-    navigate("/signup");
-    return null;
-  }
+  // Redirect if not a service provider or service type not set
+  useEffect(() => {
+    if (!isServiceProvider) {
+      navigate("/");
+    } else if (!serviceType) {
+      navigate("/signup");
+    }
+  }, [isServiceProvider, serviceType, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
