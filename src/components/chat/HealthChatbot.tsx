@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Send, Bot, User, Loader2, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 type Message = {
   role: "user" | "assistant";
@@ -20,24 +21,84 @@ const suggestedQuestions = [
   "I need help managing my medications",
 ];
 
-// Simple markdown-like formatting for bold text and bullet points
-function formatMessage(text: string) {
-  // Split by lines to handle bullet points
+// Service keywords mapped to their routes
+const serviceLinks: { keywords: string[]; route: string; label: string }[] = [
+  { keywords: ["doctor appointment", "book a doctor", "see a doctor", "doctor visit", "consult a doctor"], route: "/doctor-appointment", label: "Doctor Appointment" },
+  { keywords: ["medicine delivery", "order medicine", "buy medicine", "medications", "pharmacy"], route: "/medicine-delivery", label: "Medicine Delivery" },
+  { keywords: ["lab test", "blood test", "diagnostic", "checkup", "health test"], route: "/lab-tests", label: "Lab Tests" },
+  { keywords: ["home visit", "doctor home visit", "doctor at home"], route: "/doctor-home-visit", label: "Doctor Home Visit" },
+  { keywords: ["elderly care", "senior care", "old age care", "elderly parent"], route: "/elderly-care", label: "Elderly Care" },
+  { keywords: ["nurse", "nursing", "part-time nurse", "home nurse"], route: "/part-time-nurse", label: "Part-Time Nurse" },
+  { keywords: ["emergency", "sos", "urgent care", "ambulance"], route: "/emergency-sos", label: "Emergency SOS" },
+];
+
+// Component to render a clickable service link
+function ServiceLink({ route, label, onClose }: { route: string; label: string; onClose: () => void }) {
+  return (
+    <Link
+      to={route}
+      onClick={onClose}
+      className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-md font-medium transition-colors"
+    >
+      {label} →
+    </Link>
+  );
+}
+
+// Simple markdown-like formatting with clickable service links
+function formatMessage(text: string, onClose: () => void): React.ReactNode[] {
   const lines = text.split('\n');
   
   return lines.map((line, lineIndex) => {
-    // Handle bullet points
     const isBullet = line.trim().startsWith('- ') || line.trim().startsWith('* ');
     const bulletContent = isBullet ? line.trim().slice(2) : line;
     
-    // Handle bold text with **text**
-    const parts = bulletContent.split(/(\*\*[^*]+\*\*)/g);
-    const formattedParts = parts.map((part, i) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i}>{part.slice(2, -2)}</strong>;
-      }
-      return part;
-    });
+    // Process bold text and service links
+    const processText = (content: string): React.ReactNode[] => {
+      const boldParts = content.split(/(\*\*[^*]+\*\*)/g);
+      const result: React.ReactNode[] = [];
+      
+      boldParts.forEach((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          const boldText = part.slice(2, -2);
+          const service = serviceLinks.find(s => 
+            s.keywords.some(k => boldText.toLowerCase().includes(k))
+          );
+          if (service) {
+            result.push(<ServiceLink key={`link-${lineIndex}-${i}`} route={service.route} label={service.label} onClose={onClose} />);
+          } else {
+            result.push(<strong key={`bold-${lineIndex}-${i}`}>{boldText}</strong>);
+          }
+        } else if (part) {
+          // Check for service mentions in plain text
+          let hasMatch = false;
+          for (const service of serviceLinks) {
+            for (const keyword of service.keywords) {
+              const lowerPart = part.toLowerCase();
+              const lowerKeyword = keyword.toLowerCase();
+              if (lowerPart.includes(lowerKeyword)) {
+                const idx = lowerPart.indexOf(lowerKeyword);
+                const before = part.slice(0, idx);
+                const after = part.slice(idx + keyword.length);
+                if (before) result.push(before);
+                result.push(<ServiceLink key={`svc-${lineIndex}-${i}`} route={service.route} label={service.label} onClose={onClose} />);
+                if (after) result.push(after);
+                hasMatch = true;
+                break;
+              }
+            }
+            if (hasMatch) break;
+          }
+          if (!hasMatch) {
+            result.push(part);
+          }
+        }
+      });
+      
+      return result;
+    };
+
+    const formattedParts = processText(bulletContent);
 
     if (isBullet) {
       return (
@@ -241,9 +302,9 @@ export function HealthChatbot() {
                       : "bg-muted"
                   }`}
                 >
-                  {msg.role === "assistant" ? (
+{msg.role === "assistant" ? (
                     <div className="[&>p]:leading-relaxed [&>li]:leading-relaxed">
-                      {formatMessage(msg.content)}
+                      {formatMessage(msg.content, () => setIsOpen(false))}
                     </div>
                   ) : (
                     msg.content
