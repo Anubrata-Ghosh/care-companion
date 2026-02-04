@@ -35,10 +35,10 @@ const App = () => (
     <TooltipProvider>
       <AuthProvider>
         <ProviderLinkProvider>
-          <Toaster />
+        <Toaster />
           <Sonner />
-          <HealthChatbot />
           <BrowserRouter>
+          <HealthChatbot />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
